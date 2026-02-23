@@ -1,55 +1,911 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>DIMFACE</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name — Sound Design & Game Audio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─────────────────────────────────────────
+       ROOT & RESET
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Inconsolata', monospace;
+
+      /* Scene colors */
+      --void-bg:    #050508;
+      --void-acc:   #a0f0ff;
+      --void-text:  #c8dde8;
+
+      --neon-bg:    #07010f;
+      --neon-acc:   #c560ff;
+      --neon-sec:   #ff3d6e;
+      --neon-text:  #e8d0ff;
+
+      --amber-bg:   #100800;
+      --amber-acc:  #ffb347;
+      --amber-sec:  #e05c00;
+      --amber-text: #f5ddb5;
+
+      --mist-bg:    #020c10;
+      --mist-acc:   #40e0c0;
+      --mist-text:  #b0d8d0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-mono);
+      background: var(--void-bg);
+      color: var(--void-text);
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ─────────────────────────────────────────
+       SCROLLING BACKGROUND ENGINE
+       The ::before pseudo on each section
+       creates layered gradients that blend.
+    ───────────────────────────────────────── */
+    section {
+      position: relative;
+      min-height: 100vh;
+      padding: 10vh 8vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      transition: background 0.6s ease;
+    }
+
+    /* ─────────────────────────────────────────
+       NOISE GRAIN OVERLAY (all sections)
+    ───────────────────────────────────────── */
+    section::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ─────────────────────────────────────────
+       ANIMATED GRADIENT ORB (background blob)
+    ───────────────────────────────────────── */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      animation: drift 12s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, -30px) scale(1.08); }
+    }
+
+    /* ─────────────────────────────────────────
+       SCANLINE EFFECT (decorative)
+    ───────────────────────────────────────── */
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.07) 3px,
+        rgba(0,0,0,0.07) 4px
+      );
+      z-index: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       CONTENT LAYER
+    ───────────────────────────────────────── */
+    .content { position: relative; z-index: 2; }
+
+    /* ─────────────────────────────────────────
+       TYPOGRAPHY
+    ───────────────────────────────────────── */
+    .display {
+      font-family: var(--font-display);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+    }
+    .mono {
+      font-family: var(--font-mono);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 3rem;
+      background: rgba(5, 5, 8, 0.6);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(160, 240, 255, 0.07);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--void-acc);
+      letter-spacing: 0.04em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: rgba(200, 220, 235, 0.6);
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--void-acc); }
+
+    /* ─────────────────────────────────────────
+       SECTION 1 — VOID / HERO
+    ───────────────────────────────────────── */
+    #hero {
+      background: radial-gradient(ellipse at 20% 50%, #0a1a2a 0%, var(--void-bg) 70%);
+      min-height: 100vh;
+    }
+    #hero .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(100, 200, 255, 0.12), transparent 70%);
+      top: -100px; left: -150px;
+      animation-delay: 0s;
+    }
+    #hero .orb-2 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(60, 120, 200, 0.1), transparent 70%);
+      bottom: 10%; right: 10%;
+      animation-delay: -4s;
+    }
+
+    .hero-eyebrow {
+      color: var(--void-acc);
+      margin-bottom: 1.5rem;
+      opacity: 0.8;
+    }
+    .hero-title {
+      font-size: clamp(3.5rem, 10vw, 9rem);
+      color: #ffffff;
+      margin-bottom: 0.3em;
+    }
+    .hero-subtitle {
+      font-size: clamp(1.2rem, 3vw, 2.2rem);
+      color: var(--void-acc);
+      font-family: var(--font-display);
+      font-weight: 400;
+      margin-bottom: 2rem;
+      opacity: 0.7;
+    }
+    .hero-desc {
+      max-width: 480px;
+      line-height: 1.8;
+      font-size: 0.88rem;
+      color: var(--void-text);
+      opacity: 0.7;
+      margin-bottom: 3rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.8em 2em;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid currentColor;
+      transition: background 0.3s, color 0.3s;
+      cursor: pointer;
+      background: transparent;
+    }
+    .btn-void {
+      color: var(--void-acc);
+      border-color: var(--void-acc);
+    }
+    .btn-void:hover {
+      background: var(--void-acc);
+      color: var(--void-bg);
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.35;
+      z-index: 2;
+    }
+    .scroll-hint span {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, rgba(160,240,255,0.8), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { transform: scaleY(1); opacity: 0.4; }
+      50% { transform: scaleY(0.6); opacity: 0.9; }
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION 2 — NEON / WORKS
+    ───────────────────────────────────────── */
+    #works {
+      background: radial-gradient(ellipse at 80% 30%, #1a0030 0%, var(--neon-bg) 60%);
+      color: var(--neon-text);
+    }
+    #works .orb-3 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(197, 96, 255, 0.15), transparent 70%);
+      top: -200px; right: -200px;
+      animation-delay: -2s;
+    }
+    #works .orb-4 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255, 61, 110, 0.1), transparent 70%);
+      bottom: 0; left: 5%;
+      animation-delay: -6s;
+    }
+
+    .section-label {
+      color: var(--neon-acc);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: clamp(2.5rem, 6vw, 6rem);
+      color: #fff;
+      margin-bottom: 3rem;
+    }
+
+    /* Demo reel grid */
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .work-card {
+      border: 1px solid rgba(197, 96, 255, 0.2);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      background: rgba(197, 96, 255, 0.03);
+      transition: border-color 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+    .work-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(197,96,255,0.06), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .work-card:hover { border-color: rgba(197, 96, 255, 0.6); transform: translateY(-4px); }
+    .work-card:hover::before { opacity: 1; }
+
+    .card-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--neon-acc);
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+    .card-desc {
+      font-size: 0.82rem;
+      line-height: 1.7;
+      opacity: 0.6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Audio placeholder bar */
+    .audio-placeholder {
+      height: 48px;
+      border: 1px dashed rgba(197, 96, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0 1rem;
+      border-radius: 2px;
+    }
+    .play-btn {
+      width: 28px; height: 28px;
+      border: 1px solid var(--neon-acc);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .play-btn:hover { background: rgba(197,96,255,0.2); }
+    .play-btn svg { width: 10px; height: 10px; fill: var(--neon-acc); margin-left: 2px; }
+    .waveform-bars {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+      height: 24px;
+    }
+    .bar {
+      width: 3px;
+      background: rgba(197, 96, 255, 0.4);
+      border-radius: 1px;
+      animation: barBounce 1.4s ease-in-out infinite;
+    }
+    .bar:nth-child(odd) { animation-delay: 0.2s; }
+    .bar:nth-child(3n)  { animation-delay: 0.6s; }
+    @keyframes barBounce {
+      0%, 100% { height: 6px; }
+      50% { height: 20px; }
+    }
+
+    /* Image placeholder */
+    .img-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, rgba(197,96,255,0.05), rgba(255,61,110,0.05));
+      border: 1px dashed rgba(197, 96, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION 3 — AMBER / ABOUT
+    ───────────────────────────────────────── */
+    #about {
+      background: radial-gradient(ellipse at 10% 70%, #2a0d00 0%, var(--amber-bg) 65%);
+      color: var(--amber-text);
+    }
+    #about .orb-5 {
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(255, 120, 30, 0.12), transparent 70%);
+      top: -100px; right: -300px;
+      animation-delay: -3s;
+    }
+    #about .orb-6 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(255, 179, 71, 0.08), transparent 70%);
+      bottom: 5%; left: 30%;
+      animation-delay: -8s;
+    }
+    #about .section-label { color: var(--amber-acc); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    .about-body {
+      font-size: 0.92rem;
+      line-height: 2;
+      opacity: 0.75;
+    }
+    .about-body p + p { margin-top: 1.2em; }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 2rem;
+    }
+    .skill-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.4em 0.9em;
+      border: 1px solid rgba(255, 179, 71, 0.3);
+      color: var(--amber-acc);
+      opacity: 0.8;
+    }
+
+    .portrait-placeholder {
+      width: 100%;
+      aspect-ratio: 3/4;
+      max-width: 380px;
+      margin: 0 auto;
+      background: linear-gradient(160deg, rgba(255,120,30,0.08), rgba(224,92,0,0.04));
+      border: 1px dashed rgba(255, 179, 71, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber-acc);
+      opacity: 0.4;
+      position: relative;
+    }
+    .portrait-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(255, 179, 71, 0.1);
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION 4 — MIST / CONTACT
+    ───────────────────────────────────────── */
+    #contact {
+      background: radial-gradient(ellipse at 50% 30%, #011510 0%, var(--mist-bg) 70%);
+      color: var(--mist-text);
+      text-align: center;
+      align-items: center;
+    }
+    #contact .orb-7 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(64, 224, 192, 0.1), transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -5s;
+    }
+    #contact .section-label { color: var(--mist-acc); }
+    #contact .section-title { margin-bottom: 1rem; }
+
+    .contact-desc {
+      max-width: 460px;
+      font-size: 0.88rem;
+      line-height: 1.9;
+      opacity: 0.6;
+      margin: 0 auto 3rem;
+    }
+    .contact-links {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-mist {
+      color: var(--mist-acc);
+      border-color: var(--mist-acc);
+    }
+    .btn-mist:hover {
+      background: var(--mist-acc);
+      color: var(--mist-bg);
+    }
+
+    /* Email display */
+    .email-display {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.02em;
+    }
+    .email-display a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(64, 224, 192, 0.3);
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .email-display a:hover {
+      color: var(--mist-acc);
+      border-color: var(--mist-acc);
+    }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      background: #020305;
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    footer span {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.3;
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION DIVIDER — glitchy line
+    ───────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    .divider::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      animation: glitch 3s ease-in-out infinite;
+    }
+    @keyframes glitch {
+      0%, 90%, 100% { transform: scaleX(1) translateX(0); opacity: 0.4; }
+      92% { transform: scaleX(0.6) translateX(-20%); opacity: 0.8; }
+      95% { transform: scaleX(1.1) translateX(5%); opacity: 0.2; }
+    }
+
+    /* ─────────────────────────────────────────
+       SCROLL FADE-IN ANIMATION
+    ───────────────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-up:nth-child(2) { transition-delay: 0.1s; }
+    .fade-up:nth-child(3) { transition-delay: 0.2s; }
+    .fade-up:nth-child(4) { transition-delay: 0.3s; }
+  </style>
 </head>
-  <header>
-      <h1><b>DIMFACE</b> <i>Texno Trio</i></h1>
-  </header>
-<meta charset="utf-8">
 <body>
-  <h1>About Us</h1>
-  <p>We are an international (broke) trio trying to pursue our goals in spreading the love for atonal, 
-    non-sense, distorted and probably non-pleasant music. A special kind of Techno. Still, we kinda like it. 
-    Check out our new track “Inferno”. The challenge for it? Not to dislike it :)</b>
-  </p>
-  <p>
-  <audio src="Inferno.mp3" controls>
-  </p>
-<h1>The Band</h1>
-<img src="DIMFACE.PNG" alt="THE TEXNO TRIO">
-<h3>Meet Cornelius</h3>
-<p>Cornelius Eclipse AKA Frosted Flake is an veteran DJ and turn-tablist from Wapakoneta, Ohio.
-    He got his nickname after a legendary DJ set at the Frosted Flakes 10 Year Anniversary Party 
-    in Anaheim, CA that went semi-viral on Vine. Some say he has since fell off, but his crucial 
-    part in DimFace’s success tells a different story. His hypersonic beats will itch your brain 
-    like never before this summer.
-</p>
-    <h3>Meet DARK GOAT</h3>
-    <p>Oier Aguirre, also known as The Dark Goat, started his music path when he was just 
-        7 years old. He started as a classical percussionist and singer, but later on decided 
-        to move to the dark side of music (Bach would have not like it) after realizing that 
-        subwoofers were not part of the usual setup in an orchestra. His first approach to music 
-        production and DJ-ing was in Minecraft, when he discovered that by putting note blocks 
-        together he could do amazing covers such as “Electric Twinkle Twinkle”,  his first big hit. 
-        After that, he decided to switch to Ableton and start his big journey by joining the “DIMFACE The Texno Trio”. </p>
 
-    <h3>Meet Greg</h3>
-      <p>Greg isnt actually in DIMFACE, at least not officially. Greg was too scared to 
-        commit to the dark rituals needed to belong in the band, but we think hes chill 
-        so he kinda just hangs out while we make music. he gets us dino nuggies and stuff.
-        one day we were making our dark techno and greg pulled up to the studio (garage) 
-        with a banjo and we recorded it and now we kinda just tell him to play on every track.
-        we do not pay him.
-    </p>
+  <!-- ── NAVIGATION ── -->
+  <nav>
+    <a class="nav-logo" href="#hero">YN</a>
+    <ul class="nav-links">
+      <li><a href="#works">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-      <h3>Reviews</h3>
-      <p>"DimFace is my favorite techno group of all time. The Dark Goat always keeps me coming back to the rave." -Jess, 29</p>
-      <p>"Greg." -The Washington Post</p>
-      <p>"Cornelius peaked on Vine but the group is pretty cool as a whole -Joshua (19th DimFace Manager), 19"</p>
-      
+
+  <!-- ══════════════════════════════════════
+       SECTION 1 — VOID / HERO
+  ══════════════════════════════════════ -->
+  <section id="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="scanlines"></div>
+
+    <div class="content">
+      <p class="mono hero-eyebrow fade-up">Sound Design &amp; Interactive Audio</p>
+      <h1 class="display hero-title fade-up">Your<br/>Name.</h1>
+      <p class="hero-subtitle fade-up">Game Audio — Adaptive Music — Demo Reels</p>
+      <p class="hero-desc fade-up">
+        Creating sonic worlds that react, breathe, and evolve.
+        Specializing in interactive music systems and immersive sound design for games and media.
+      </p>
+      <a href="#works" class="btn btn-void fade-up">Explore Work ↓</a>
+    </div>
+
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 2 — NEON / WORKS
+  ══════════════════════════════════════ -->
+  <section id="works">
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="scanlines"></div>
+
+    <div class="content">
+      <p class="mono section-label fade-up">// 01 — Selected Works</p>
+      <h2 class="display section-title fade-up">Demo<br/>Reels.</h2>
+
+      <div class="works-grid">
+
+        <!-- Card 1 -->
+        <div class="work-card fade-up">
+          <div class="img-placeholder">Project Image</div>
+          <p class="card-tag">Game Audio · Adaptive Music</p>
+          <h3 class="card-title">Project Title Here</h3>
+          <p class="card-desc">
+            Short description of the project, the brief, the tools used, and what made the audio interesting. Keep it punchy.
+          </p>
+          <div class="audio-placeholder">
+            <div class="play-btn">
+              <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+            </div>
+            <div class="waveform-bars">
+              <div class="bar" style="height:8px"></div>
+              <div class="bar" style="height:14px"></div>
+              <div class="bar" style="height:6px"></div>
+              <div class="bar" style="height:18px"></div>
+              <div class="bar" style="height:10px"></div>
+              <div class="bar" style="height:16px"></div>
+              <div class="bar" style="height:8px"></div>
+              <div class="bar" style="height:12px"></div>
+              <div class="bar" style="height:20px"></div>
+              <div class="bar" style="height:7px"></div>
+              <div class="bar" style="height:15px"></div>
+              <div class="bar" style="height:9px"></div>
+              <div class="bar" style="height:19px"></div>
+              <div class="bar" style="height:11px"></div>
+              <div class="bar" style="height:14px"></div>
+              <div class="bar" style="height:6px"></div>
+              <div class="bar" style="height:17px"></div>
+              <div class="bar" style="height:13px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="work-card fade-up">
+          <div class="img-placeholder">Project Image</div>
+          <p class="card-tag">Sound Design · Cinematic</p>
+          <h3 class="card-title">Project Title Here</h3>
+          <p class="card-desc">
+            Short description of the project, the brief, the tools used, and what made the audio interesting.
+          </p>
+          <div class="audio-placeholder">
+            <div class="play-btn">
+              <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+            </div>
+            <div class="waveform-bars">
+              <div class="bar" style="height:12px"></div>
+              <div class="bar" style="height:6px"></div>
+              <div class="bar" style="height:18px"></div>
+              <div class="bar" style="height:9px"></div>
+              <div class="bar" style="height:14px"></div>
+              <div class="bar" style="height:20px"></div>
+              <div class="bar" style="height:7px"></div>
+              <div class="bar" style="height:15px"></div>
+              <div class="bar" style="height:10px"></div>
+              <div class="bar" style="height:17px"></div>
+              <div class="bar" style="height:8px"></div>
+              <div class="bar" style="height:13px"></div>
+              <div class="bar" style="height:19px"></div>
+              <div class="bar" style="height:11px"></div>
+              <div class="bar" style="height:16px"></div>
+              <div class="bar" style="height:6px"></div>
+              <div class="bar" style="height:14px"></div>
+              <div class="bar" style="height:9px"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="work-card fade-up">
+          <div class="img-placeholder">Project Image</div>
+          <p class="card-tag">Interactive · Middleware</p>
+          <h3 class="card-title">Project Title Here</h3>
+          <p class="card-desc">
+            Short description of the project, the brief, the tools used, and what made the audio interesting.
+          </p>
+          <div class="audio-placeholder">
+            <div class="play-btn">
+              <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+            </div>
+            <div class="waveform-bars">
+              <div class="bar" style="height:9px"></div>
+              <div class="bar" style="height:17px"></div>
+              <div class="bar" style="height:11px"></div>
+              <div class="bar" style="height:15px"></div>
+              <div class="bar" style="height:7px"></div>
+              <div class="bar" style="height:19px"></div>
+              <div class="bar" style="height:13px"></div>
+              <div class="bar" style="height:8px"></div>
+              <div class="bar" style="height:16px"></div>
+              <div class="bar" style="height:10px"></div>
+              <div class="bar" style="height:20px"></div>
+              <div class="bar" style="height:6px"></div>
+              <div class="bar" style="height:14px"></div>
+              <div class="bar" style="height:12px"></div>
+              <div class="bar" style="height:18px"></div>
+              <div class="bar" style="height:9px"></div>
+              <div class="bar" style="height:15px"></div>
+              <div class="bar" style="height:7px"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /works-grid -->
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 3 — AMBER / ABOUT
+  ══════════════════════════════════════ -->
+  <section id="about">
+    <div class="orb orb-5"></div>
+    <div class="orb orb-6"></div>
+    <div class="scanlines"></div>
+
+    <div class="content">
+      <p class="mono section-label fade-up">// 02 — About</p>
+      <h2 class="display section-title fade-up" style="color:#fff">The<br/>Composer.</h2>
+
+      <div class="about-grid">
+        <div>
+          <div class="about-body fade-up">
+            <p>
+              Replace this with a paragraph about yourself — your background, what drives your work, where you're based. Make it sound like you, not a resume.
+            </p>
+            <p>
+              A second paragraph about your approach to game audio, interactive systems, or what you love most about the craft. Clients and collaborators want to know how you think.
+            </p>
+            <p>
+              Optional third paragraph — notable credits, studios you've worked with, or education. Keep it concise.
+            </p>
+          </div>
+          <div class="skills-list fade-up">
+            <span class="skill-tag">Wwise</span>
+            <span class="skill-tag">FMOD</span>
+            <span class="skill-tag">Pro Tools</span>
+            <span class="skill-tag">Ableton Live</span>
+            <span class="skill-tag">Max/MSP</span>
+            <span class="skill-tag">Reaper</span>
+            <span class="skill-tag">Unity Audio</span>
+            <span class="skill-tag">Unreal MetaSounds</span>
+            <span class="skill-tag">Field Recording</span>
+            <span class="skill-tag">Stem Mixing</span>
+          </div>
+        </div>
+
+        <div class="fade-up">
+          <div class="portrait-placeholder">Your Photo</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 4 — MIST / CONTACT
+  ══════════════════════════════════════ -->
+  <section id="contact">
+    <div class="orb orb-7"></div>
+    <div class="scanlines"></div>
+
+    <div class="content">
+      <p class="mono section-label fade-up">// 03 — Contact</p>
+      <h2 class="display section-title fade-up" style="color:#fff">Let's<br/>Build.</h2>
+      <p class="contact-desc fade-up">
+        Open to collaborations, commissions, and conversations about interactive audio, adaptive music systems, and sound design for games and media.
+      </p>
+      <div class="email-display fade-up">
+        <a href="mailto:your@email.com">your@email.com</a>
+      </div>
+      <div class="contact-links fade-up">
+        <a href="#" class="btn btn-mist">SoundCloud</a>
+        <a href="#" class="btn btn-mist">LinkedIn</a>
+        <a href="#" class="btn btn-mist">Bandcamp</a>
+        <a href="#" class="btn btn-mist">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span>© 2025 Your Name</span>
+    <span>Sound Design &amp; Interactive Audio</span>
+  </footer>
+
+
+  <!-- ─────────────────────────────────────────
+       JS — Scroll-driven background + fade-ins
+  ───────────────────────────────────────── -->
+  <script>
+    // ── Smooth background color blending on scroll ──
+    const sections = document.querySelectorAll('section');
+    const body = document.body;
+
+    // Each section's "signature" background for the nav/body
+    const sectionColors = {
+      hero:    { bg: 'rgba(5, 5, 8, 0.6)',   acc: 'rgba(160, 240, 255, 0.07)' },
+      works:   { bg: 'rgba(7, 1, 15, 0.6)',  acc: 'rgba(197, 96, 255, 0.07)' },
+      about:   { bg: 'rgba(16, 8, 0, 0.6)',  acc: 'rgba(255, 179, 71, 0.07)' },
+      contact: { bg: 'rgba(2, 12, 16, 0.6)', acc: 'rgba(64, 224, 192, 0.07)' },
+    };
+
+    const nav = document.querySelector('nav');
+    const navBorderColor = {
+      hero:    'rgba(160, 240, 255, 0.07)',
+      works:   'rgba(197, 96, 255, 0.12)',
+      about:   'rgba(255, 179, 71, 0.10)',
+      contact: 'rgba(64, 224, 192, 0.10)',
+    };
+
+    // ── Intersection Observer for fade-ins ──
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    fadeEls.forEach(el => fadeObserver.observe(el));
+
+    // ── Section observer to update nav accent ──
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          if (sectionColors[id]) {
+            nav.style.background = sectionColors[id].bg;
+            nav.style.borderBottomColor = navBorderColor[id];
+          }
+        }
+      });
+    }, { threshold: 0.4 });
+    sections.forEach(s => sectionObserver.observe(s));
+
+    // ── Animated waveform bars (cosmetic, no audio yet) ──
+    // They animate via CSS, but we pause them on cards not in view
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const bars = entry.target.querySelectorAll('.bar');
+        bars.forEach(bar => {
+          bar.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+        });
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.work-card').forEach(c => cardObserver.observe(c));
+  </script>
 
 </body>
 </html>
