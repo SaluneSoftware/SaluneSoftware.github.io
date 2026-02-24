@@ -139,12 +139,13 @@
       transition: background var(--theme-t);
     }
 
-    /* Broad theme transition */
+    /* Broad theme transition — colours only, never opacity/transform */
     * { transition: background-color var(--theme-t), color var(--theme-t), border-color var(--theme-t), box-shadow var(--theme-t); }
-    /* But don't slow down hover transforms */
     .project-card { transition: background-color var(--theme-t), color var(--theme-t), border-color var(--theme-t), transform 0.3s ease, box-shadow 0.3s ease !important; }
     .btn { transition: background-color 0.3s, color var(--theme-t), border-color var(--theme-t) !important; }
     .filter-tab { transition: background-color 0.25s, color var(--theme-t), border-color var(--theme-t) !important; }
+    /* Fade-up elements own their opacity+transform — must not be overridden by * */
+    .fade-up { transition: opacity 0.9s ease, transform 0.9s ease !important; }
 
     /* ═══════════════════════════════════════════════════════════
        GRAIN
@@ -404,7 +405,7 @@
     /* ═══════════════════════════════════════════════════════════
        FADE-UP
     ═══════════════════════════════════════════════════════════ */
-    .fade-up { opacity:0; transform:translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease !important; }
+    .fade-up { opacity:0; transform:translateY(28px); }
     .fade-up.visible { opacity:1; transform:translateY(0); }
     .fade-up.d1 { transition-delay:0.05s; }
     .fade-up.d2 { transition-delay:0.15s; }
