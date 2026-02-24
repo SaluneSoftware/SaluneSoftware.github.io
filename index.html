@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Name — Sound Design & Game Audio</title>
+  <title>Tommy van der Laan // Salune — Sound Design & Game Audio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -260,10 +260,7 @@
     .btn-hero { color: var(--hero-acc); }
     .btn-hero:hover { background: rgba(var(--hero-acc-r),var(--hero-acc-g),var(--hero-acc-b),0.1); }
 
-    .scroll-hint { position: absolute; bottom:3rem; right:3rem; display:flex; flex-direction:column; align-items:center; gap:0.6rem; opacity:0.28; z-index:10; writing-mode:vertical-rl; }
-    .scroll-hint span { font-size:0.58rem; letter-spacing:0.3em; text-transform:uppercase; color: var(--hero-acc); }
-    .scroll-line { width:1px; height:60px; background: linear-gradient(to bottom, var(--hero-acc), transparent); animation: scrollP 2.4s ease-in-out infinite; }
-    @keyframes scrollP { 0%,100% { opacity:0.3; transform:scaleY(1); } 50% { opacity:1; transform:scaleY(0.7); } }
+
 
     /* ═══════════════════════════════════════════════════════════
        SECTION BLEED PANELS
@@ -471,12 +468,12 @@
 
     <div class="content">
       <p class="mono-label hero-eyebrow fade-up d1">Sound Design &amp; Interactive Audio</p>
-      <h1 class="display hero-title fade-up d2">Your<br/>Name.</h1>
-      <p class="hero-subtitle fade-up d3">Game Audio — Adaptive Music — Demo Reels</p>
-      <p class="hero-desc fade-up d4">Creating sonic worlds that react, breathe, and evolve. Specializing in interactive music systems and immersive sound design for games and media.</p>
+      <h1 class="display hero-title fade-up d2">Tommy van der Laan<br/>/ Salune</h1>
+      <p class="hero-subtitle fade-up d3">Game Audio — Interactive Music — Implementation</p>
+      <p class="hero-desc fade-up d4">Creating sounds that react, breathe, and evolve. Specializing in sound design for games with an interest in the interactivity of music.</p>
       <a href="#works" class="btn btn-hero fade-up d5">Explore Work ↓</a>
     </div>
-    <div class="scroll-hint"><div class="scroll-line"></div><span>Scroll</span></div>
+
   </section>
 
   <!-- BLEED 1 -->
@@ -510,15 +507,15 @@
 
     <div class="content">
       <p class="mono-label section-label fade-up d1">// 01 — Projects &amp; Reels</p>
-      <h2 class="display section-title fade-up d2">Work.</h2>
+      <h2 class="display section-title fade-up d2">Work</h2>
 
       <div class="filter-tabs fade-up d3">
         <button class="filter-tab active" data-filter="all">All</button>
         <button class="filter-tab" data-filter="reel">Demo Reel</button>
         <button class="filter-tab" data-filter="game">Game Audio</button>
-        <button class="filter-tab" data-filter="film">Film / Media</button>
-        <button class="filter-tab" data-filter="sound">Sound Design</button>
         <button class="filter-tab" data-filter="interactive">Interactive</button>
+        <button class="filter-tab" data-filter="sound">Sound Design</button>
+        <button class="filter-tab" data-filter="other">Other Projects</button>
       </div>
 
       <div class="projects-grid">
@@ -527,9 +524,9 @@
         <div class="project-card wide fade-up d3" data-type="reel">
           <div>
             <span class="card-type-badge">Demo Reel</span>
-            <h3 class="card-title">2024 Game Audio Reel</h3>
-            <p class="card-tag">Adaptive Music · Sound Design · Middleware</p>
-            <p class="card-desc">A showcase of adaptive music systems, environmental audio, and sound design work from game projects across the year. Featuring work built in Wwise and FMOD.</p>
+            <h3 class="card-title">2026 Sound Design Reel</h3>
+            <p class="card-tag">Immersive · Sound Design · Logic</p>
+            <p class="card-desc">A showcase of sound to picture, environmental audio, and sound redesign work from various games.</p>
             <div class="audio-bar">
               <div class="play-btn"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
               <div class="waveform-bars" id="bars1"></div>
@@ -537,17 +534,17 @@
           </div>
           <div class="video-placeholder">
             <div class="video-play-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-            <span class="video-label">Embed Reel Video</span>
+            <span class="video-label">(WIP)</span>
           </div>
         </div>
 
         <!-- Game audio -->
         <div class="project-card fade-up d3" data-type="game">
-          <div class="img-placeholder">Project Screenshot</div>
+          <div class="img-placeholder">(WIP)</div>
           <span class="card-type-badge">Game Audio</span>
-          <h3 class="card-title">Project Title Here</h3>
-          <p class="card-tag">Adaptive Music · Unity · Wwise</p>
-          <p class="card-desc">Short description — the brief, your approach, and what made the audio design interesting.</p>
+          <h3 class="card-title">Retro Repair</h3>
+          <p class="card-tag">Scoring · Wwise</p>
+          <p class="card-desc">Main theme and interactive menu transitions.</p>
           <div class="audio-bar">
             <div class="play-btn"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
             <div class="waveform-bars" id="bars2"></div>
@@ -556,36 +553,36 @@
 
         <!-- Sound design -->
         <div class="project-card fade-up d4" data-type="sound">
-          <div class="img-placeholder">Project Image</div>
+          <div class="img-placeholder">(WIP)</div>
           <span class="card-type-badge">Sound Design</span>
           <h3 class="card-title">Project Title Here</h3>
-          <p class="card-tag">Foley · SFX Design · Reaper</p>
-          <p class="card-desc">Short description of the sonic palette, recording process, and what made the design unique.</p>
+          <p class="card-tag">Foley · SFX Design · 5.1</p>
+          <p class="card-desc">A small project to test spacialization and surround. </p>
           <div class="audio-bar">
             <div class="play-btn"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
             <div class="waveform-bars" id="bars3"></div>
           </div>
         </div>
 
-        <!-- Film -->
-        <div class="project-card fade-up d3" data-type="film">
+        <!-- Interactive -->
+        <div class="project-card fade-up d3" data-type="interactive">
           <div class="video-placeholder">
             <div class="video-play-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
-            <span class="video-label">Embed Video</span>
+            <span class="video-label">(WIP)</span>
           </div>
-          <span class="card-type-badge">Film / Media</span>
-          <h3 class="card-title">Project Title Here</h3>
-          <p class="card-tag">Score · Sync · Pro Tools</p>
-          <p class="card-desc">Short description — genre, mood, and creative direction for the score.</p>
+          <span class="card-type-badge">Interactive</span>
+          <h3 class="card-title">(WIP)</h3>
+          <p class="card-tag">Unity · Game Design · Wwise</p>
+          <p class="card-desc">lorem ipsum</p>
         </div>
 
-        <!-- Interactive -->
-        <div class="project-card fade-up d4" data-type="interactive">
-          <div class="img-placeholder tall">Project Image</div>
-          <span class="card-type-badge">Interactive</span>
-          <h3 class="card-title">Project Title Here</h3>
-          <p class="card-tag">Generative · Max/MSP · Web Audio</p>
-          <p class="card-desc">Description of the interactive system — what it responds to, the tech stack, and the artistic intent.</p>
+        <!-- Other Projects -->
+        <div class="project-card fade-up d4" data-type="other">
+          <div class="img-placeholder tall">(WIP)</div>
+          <span class="card-type-badge">Other Projects</span>
+          <h3 class="card-title">For My Love</h3>
+          <p class="card-tag">Concept Album · Production · Songwriting</p>
+          <p class="card-desc">An artist project under the name Salune created to make interconnected songs that I enjoy producing</p>
           <div class="audio-bar">
             <div class="play-btn"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
             <div class="waveform-bars" id="bars4"></div>
@@ -628,23 +625,23 @@
 
     <div class="content">
       <p class="mono-label section-label about-label fade-up d1">// 02 — About</p>
-      <h2 class="display section-title about-title fade-up d2">The<br/>Composer.</h2>
+      <h2 class="display section-title about-title fade-up d2">About<br/>Tommy & Salune</h2>
       <div class="about-grid">
         <div>
           <div class="about-body fade-up d3">
-            <p>Replace this with a paragraph about yourself — your background, what drives your work, where you're based. Make it sound like you, not a resume.</p>
-            <p>A second paragraph about your approach to game audio, interactive systems, or what you love most about the craft.</p>
-            <p>Optional third — notable credits, studios, or education. Keep it concise.</p>
+            <p>Hello! I am a Boston-based creator and musician aiming to make something new and interesting. Whether it's game audio and interactivity or making conceptual albums, my aim is to get as close as I can to becoming a magician with music.</p>
+            <p>My approach is to learn as much as I can about techniques and systems so that I can scramble everything, hopefully correctly, into something I like. I love discovering interesting ways to tie music to emotion.</p>
+            <p>I am currently a 6th semester at The Berklee College of Music, majoring in Electronic Production and Sound Design as well as Game and interactive media, and with a specialization in Sound Design for Games.</p>
           </div>
           <div class="skills-list fade-up d4">
             <span class="skill-tag">Wwise</span><span class="skill-tag">FMOD</span>
-            <span class="skill-tag">Pro Tools</span><span class="skill-tag">Ableton Live</span>
-            <span class="skill-tag">Max/MSP</span><span class="skill-tag">Reaper</span>
-            <span class="skill-tag">Unity Audio</span><span class="skill-tag">Unreal MetaSounds</span>
-            <span class="skill-tag">Field Recording</span><span class="skill-tag">Stem Mixing</span>
+            <span class="skill-tag">Logic</span><span class="skill-tag">Unity</span>
+            <span class="skill-tag">Max/MSP</span><span class="skill-tag">Pro Tools</span>
+            <span class="skill-tag">Foley</span><span class="skill-tag">Unreal MetaSounds</span>
+            <span class="skill-tag">Field Recording</span><span class="skill-tag">Production</span>
           </div>
         </div>
-        <div class="fade-up d4"><div class="portrait-placeholder">Your Photo</div></div>
+        <img src="images/Aboutmephoto.jpg" alt="Tommy van der Laan" style="width:100%; aspect-ratio:16/9; object-fit:cover; margin-bottom:1.4rem;">
       </div>
     </div>
   </section>
@@ -688,7 +685,7 @@
       <p class="mono-label section-label contact-label fade-up d1">// 03 — Contact</p>
       <h2 class="display section-title contact-title fade-up d2">Let's<br/>Build.</h2>
       <p class="contact-desc fade-up d3">Open to collaborations, commissions, and conversations about interactive audio, adaptive music systems, and sound design for games and media.</p>
-      <div class="email-display fade-up d4"><a href="mailto:your@email.com">your@email.com</a></div>
+      <div class="email-display fade-up d4"><a href="mailto:tommyvdlaan@gmail.com">tommyvdlaan@gmail.com</a></div>
       <div class="contact-links fade-up d5">
         <a href="#" class="btn btn-contact">SoundCloud</a>
         <a href="#" class="btn btn-contact">LinkedIn</a>
@@ -699,7 +696,7 @@
   </section>
 
   <footer>
-    <span>© 2025 Your Name</span>
+    <span>© 2025 Tommy van der Laan // Salune</span>
     <span>Sound Design &amp; Interactive Audio</span>
   </footer>
 
@@ -709,10 +706,64 @@
     const html      = document.documentElement;
     const toggleBtn = document.getElementById('theme-toggle');
 
-    // Restore saved
-    const saved = localStorage.getItem('portfolioTheme');
-    if (saved) html.dataset.theme = saved;
+    /**
+     * Determine the default theme for first-time visitors.
+     * Priority: 1) User's saved preference  2) Sunset-aware time check  3) 6am–6pm fallback
+     *
+     * Sunset logic: uses the open-meteo API (free, no key) to fetch today's
+     * sunrise/sunset for the user's approximate location (via browser coords).
+     * While we wait for geolocation (or if it fails), we fall back to 6am/6pm.
+     * We NEVER auto-switch after the page loads — only on initial page open.
+     */
 
+    function themeFromHour(hour) {
+      // hour is 0–23 in local time
+      return (hour >= 6 && hour < 18) ? 'light' : 'dark';
+    }
+
+    function applyDefaultTheme(theme) {
+      // Only apply if user hasn't manually set a preference this session
+      if (!localStorage.getItem('portfolioTheme')) {
+        html.dataset.theme = theme;
+      }
+    }
+
+    // 1. Apply saved preference immediately (fastest, no flash)
+    const saved = localStorage.getItem('portfolioTheme');
+    if (saved) {
+      html.dataset.theme = saved;
+    } else {
+      // 2. Fallback: use local hour (6am–6pm = light) while we try geolocation
+      const localHour = new Date().getHours();
+      html.dataset.theme = themeFromHour(localHour);
+
+      // 3. Try to get precise sunset time via geolocation + open-meteo
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&daily=sunrise,sunset&timezone=auto&forecast_days=1`)
+              .then(r => r.json())
+              .then(data => {
+                if (!localStorage.getItem('portfolioTheme') && data.daily) {
+                  const sunriseStr = data.daily.sunrise[0]; // e.g. "2025-02-24T06:42"
+                  const sunsetStr  = data.daily.sunset[0];  // e.g. "2025-02-24T17:58"
+                  const now        = new Date();
+                  const sunrise    = new Date(sunriseStr);
+                  const sunset     = new Date(sunsetStr);
+                  const isDaytime  = now >= sunrise && now < sunset;
+                  html.dataset.theme = isDaytime ? 'light' : 'dark';
+                }
+              })
+              .catch(() => { /* silently fall back to hour-based default already set */ });
+          },
+          () => { /* geolocation denied — hour-based default already set, no action needed */ },
+          { timeout: 4000 }
+        );
+      }
+    }
+
+    // Toggle on click — saves preference so auto-default never overrides again
     toggleBtn.addEventListener('click', () => {
       html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
       localStorage.setItem('portfolioTheme', html.dataset.theme);
