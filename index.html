@@ -254,7 +254,7 @@
     #hero .orb-c { width:250px; height:250px; background: radial-gradient(ellipse, var(--hero-bloom3), transparent 70%); top:40%; left:55%; }
 
     .hero-eyebrow { color: var(--hero-acc); margin-bottom: 1.8rem; opacity: 0.75; }
-    .hero-title { font-size: clamp(4rem,11vw,10rem); color: var(--hero-title); margin-bottom: 0.2em; }
+    .hero-title { font-size: clamp(2.4rem,6vw,5.5rem); color: var(--hero-title); margin-bottom: 0.2em; }
     .hero-subtitle { font-size: clamp(0.85rem,2vw,1.3rem); font-family: var(--font-display); font-weight: 400; color: var(--hero-acc); margin-bottom: 2rem; opacity: 0.6; letter-spacing: 0.05em; }
     .hero-desc { max-width: 420px; line-height: 1.9; font-size: 0.86rem; color: var(--hero-text); opacity: 0.7; margin-bottom: 3rem; }
     .btn-hero { color: var(--hero-acc); }
@@ -412,6 +412,76 @@
     .fade-up.d4 { transition-delay:0.42s; }
     .fade-up.d5 { transition-delay:0.56s; }
 
+    /* ═══════════════════════════════════════════════════════════
+       MOBILE — text & layout fixes (≤ 600px)
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+
+      /* Nav */
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { gap: 1.2rem; }
+      .nav-links a { font-size: 0.6rem; letter-spacing: 0.1em; }
+      .nav-logo { font-size: 0.78rem; letter-spacing: 0.03em; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      /* Sections */
+      section { padding: 10vh 6vw 10vh; }
+      #works, #about, #contact { padding-top: 12vh; }
+
+      /* Hero */
+      .hero-eyebrow { font-size: 0.58rem; margin-bottom: 1.2rem; }
+      .hero-title { font-size: clamp(2rem, 10vw, 3rem); line-height: 1.0; }
+      .hero-subtitle { font-size: 0.82rem; margin-bottom: 1.4rem; }
+      .hero-desc { font-size: 0.8rem; line-height: 1.75; margin-bottom: 2rem; max-width: 100%; }
+      .btn { padding: 0.65em 1.4em; font-size: 0.62rem; }
+
+      /* Section headings */
+      .section-title { font-size: clamp(2rem, 10vw, 3.2rem); margin-bottom: 1.6rem; }
+      .section-label { font-size: 0.6rem; }
+      .mono-label { font-size: 0.6rem; }
+
+      /* Filter tabs */
+      .filter-tabs { gap: 0.4rem; margin-bottom: 1.6rem; }
+      .filter-tab { font-size: 0.56rem; padding: 0.4em 0.7em; letter-spacing: 0.1em; }
+
+      /* Cards */
+      .projects-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .project-card { padding: 1.3rem; }
+      .project-card.wide { grid-column: span 1; grid-template-columns: 1fr; gap: 1rem; }
+      .card-title { font-size: 1.05rem; }
+      .card-desc { font-size: 0.76rem; }
+      .card-tag { font-size: 0.56rem; }
+      .card-type-badge { font-size: 0.52rem; padding: 0.2em 0.6em; }
+
+      /* About */
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-title { font-size: clamp(2rem, 10vw, 3.2rem); }
+      .about-body { font-size: 0.82rem; line-height: 1.9; }
+      .skills-list { gap: 0.4rem; margin-top: 1.4rem; }
+      .skill-tag { font-size: 0.56rem; padding: 0.35em 0.7em; }
+      .portrait-placeholder { max-width: 260px; }
+
+      /* Contact */
+      .contact-title { font-size: clamp(2rem, 10vw, 3.2rem); }
+      .contact-desc { font-size: 0.78rem; }
+      .email-display { font-size: clamp(0.9rem, 4.5vw, 1.3rem); }
+      .contact-links { gap: 0.6rem; }
+
+      /* Footer */
+      footer { padding: 1.4rem 1.2rem; flex-direction: column; gap: 0.4rem; text-align: center; }
+      footer span { font-size: 0.55rem; }
+    }
+
+    /* ── Tablet tweaks (601px – 900px) ── */
+    @media (min-width: 601px) and (max-width: 900px) {
+      nav { padding: 1.1rem 2rem; }
+      section { padding: 10vh 6vw; }
+      .hero-title { font-size: clamp(2.2rem, 7vw, 4rem); }
+      .section-title { font-size: clamp(2.2rem, 7vw, 4.5rem); }
+      .about-grid { gap: 3.5rem; }
+      .projects-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); }
+      .project-card.wide { grid-column: span 2; }
+    }
+
   </style>
 </head>
 <body>
@@ -419,7 +489,7 @@
   <!-- NAV -->
   <nav id="main-nav">
     <div class="nav-left">
-      <a class="nav-logo" href="#hero">YN</a>
+      <a class="nav-logo" href="#hero">Tommy van der Laan // Salune</a>
       <button id="theme-toggle" aria-label="Toggle theme">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
           <circle cx="12" cy="12" r="4"/>
@@ -470,7 +540,7 @@
       <p class="mono-label hero-eyebrow fade-up d1">Sound Design &amp; Interactive Audio</p>
       <h1 class="display hero-title fade-up d2">Tommy van der Laan<br/>/ Salune</h1>
       <p class="hero-subtitle fade-up d3">Game Audio — Interactive Music — Implementation</p>
-      <p class="hero-desc fade-up d4">Creating sounds that react, breathe, and evolve. Specializing in sound design for games with an interest in the interactivity of music.</p>
+      <p class="hero-desc fade-up d4">Creating sounds that react, breathe, and evolve with the player. Specializing in sound design for games with an interest in the interactivity of music.</p>
       <a href="#works" class="btn btn-hero fade-up d5">Explore Work ↓</a>
     </div>
 
@@ -641,7 +711,7 @@
             <span class="skill-tag">Field Recording</span><span class="skill-tag">Production</span>
           </div>
         </div>
-        <img src="images/Aboutmephoto.jpg" alt="Tommy van der Laan" style="width:100%; aspect-ratio:16/9; object-fit:cover; margin-bottom:1.4rem;">
+        <img src="Aboutmephoto.jpg" alt="Tommy van der Laan" style="width:100%; aspect-ratio:16/9; object-fit:cover; margin-bottom:1.4rem;">
       </div>
     </div>
   </section>
@@ -685,7 +755,7 @@
       <p class="mono-label section-label contact-label fade-up d1">// 03 — Contact</p>
       <h2 class="display section-title contact-title fade-up d2">Let's<br/>Build.</h2>
       <p class="contact-desc fade-up d3">Open to collaborations, commissions, and conversations about interactive audio, adaptive music systems, and sound design for games and media.</p>
-      <div class="email-display fade-up d4"><a href="mailto:tommyvdlaan@gmail.com">tommyvdlaan@gmail.com</a></div>
+      <div class="email-display fade-up d4"><a href="/cdn-cgi/l/email-protection#72061d1f1f0b04161e13131c32151f131b1e5c111d1f"><span class="__cf_email__" data-cfemail="9aeef5f7f7e3ecfef6fbfbf4dafdf7fbf3f6b4f9f5f7">[email&#160;protected]</span></a></div>
       <div class="contact-links fade-up d5">
         <a href="#" class="btn btn-contact">SoundCloud</a>
         <a href="#" class="btn btn-contact">LinkedIn</a>
@@ -701,7 +771,11 @@
   </footer>
 
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    /* ── Always start at top on load/reload ── */
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
     /* ── Theme toggle ── */
     const html      = document.documentElement;
     const toggleBtn = document.getElementById('theme-toggle');
@@ -871,12 +945,4 @@
 
     /* ── Pause bars off-screen ── */
     document.querySelectorAll('.project-card').forEach(card => {
-      new IntersectionObserver(([e]) => {
-        card.querySelectorAll('.bar').forEach(b => {
-          b.style.animationPlayState = e.isIntersecting ? 'running' : 'paused';
-        });
-      }, { threshold: 0.1 }).observe(card);
-    });
-  </script>
-</body>
-</html>
+      new Intersecti
