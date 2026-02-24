@@ -139,13 +139,12 @@
       transition: background var(--theme-t);
     }
 
-    /* Broad theme transition — colours only, never opacity/transform */
+    /* Broad theme transition */
     * { transition: background-color var(--theme-t), color var(--theme-t), border-color var(--theme-t), box-shadow var(--theme-t); }
+    /* But don't slow down hover transforms */
     .project-card { transition: background-color var(--theme-t), color var(--theme-t), border-color var(--theme-t), transform 0.3s ease, box-shadow 0.3s ease !important; }
     .btn { transition: background-color 0.3s, color var(--theme-t), border-color var(--theme-t) !important; }
     .filter-tab { transition: background-color 0.25s, color var(--theme-t), border-color var(--theme-t) !important; }
-    /* Fade-up elements own their opacity+transform — must not be overridden by * */
-    .fade-up { transition: opacity 0.9s ease, transform 0.9s ease !important; }
 
     /* ═══════════════════════════════════════════════════════════
        GRAIN
@@ -255,7 +254,7 @@
     #hero .orb-c { width:250px; height:250px; background: radial-gradient(ellipse, var(--hero-bloom3), transparent 70%); top:40%; left:55%; }
 
     .hero-eyebrow { color: var(--hero-acc); margin-bottom: 1.8rem; opacity: 0.75; }
-    .hero-title { font-size: clamp(2.4rem,6vw,5.5rem); color: var(--hero-title); margin-bottom: 0.2em; }
+    .hero-title { font-size: clamp(4rem,11vw,10rem); color: var(--hero-title); margin-bottom: 0.2em; }
     .hero-subtitle { font-size: clamp(0.85rem,2vw,1.3rem); font-family: var(--font-display); font-weight: 400; color: var(--hero-acc); margin-bottom: 2rem; opacity: 0.6; letter-spacing: 0.05em; }
     .hero-desc { max-width: 420px; line-height: 1.9; font-size: 0.86rem; color: var(--hero-text); opacity: 0.7; margin-bottom: 3rem; }
     .btn-hero { color: var(--hero-acc); }
@@ -405,84 +404,66 @@
     /* ═══════════════════════════════════════════════════════════
        FADE-UP
     ═══════════════════════════════════════════════════════════ */
-    .fade-up { opacity:0; transform:translateY(28px); }
-    .fade-up.visible { opacity:1; transform:translateY(0); }
-    .fade-up.d1 { transition-delay:0.05s; }
-    .fade-up.d2 { transition-delay:0.15s; }
-    .fade-up.d3 { transition-delay:0.28s; }
-    .fade-up.d4 { transition-delay:0.42s; }
-    .fade-up.d5 { transition-delay:0.56s; }
+    /* Pure CSS entrance animations — no JS required */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.8s ease forwards; opacity: 0; }
+    .fade-up.d1 { animation-delay: 0.1s; }
+    .fade-up.d2 { animation-delay: 0.22s; }
+    .fade-up.d3 { animation-delay: 0.36s; }
+    .fade-up.d4 { animation-delay: 0.52s; }
+    .fade-up.d5 { animation-delay: 0.68s; }
+
 
     /* ═══════════════════════════════════════════════════════════
-       MOBILE — text & layout fixes (≤ 600px)
+       MOBILE (≤ 600px)
     ═══════════════════════════════════════════════════════════ */
     @media (max-width: 600px) {
-
-      /* Nav */
       nav { padding: 1rem 1.2rem; }
       .nav-links { gap: 1.2rem; }
       .nav-links a { font-size: 0.6rem; letter-spacing: 0.1em; }
-      .nav-logo { font-size: 0.78rem; letter-spacing: 0.03em; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-      /* Sections */
-      section { padding: 10vh 6vw 10vh; }
+      .nav-logo { font-size: 0.75rem; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      section { padding: 10vh 5vw; }
       #works, #about, #contact { padding-top: 12vh; }
-
-      /* Hero */
-      .hero-eyebrow { font-size: 0.58rem; margin-bottom: 1.2rem; }
-      .hero-title { font-size: clamp(2rem, 10vw, 3rem); line-height: 1.0; }
-      .hero-subtitle { font-size: 0.82rem; margin-bottom: 1.4rem; }
-      .hero-desc { font-size: 0.8rem; line-height: 1.75; margin-bottom: 2rem; max-width: 100%; }
-      .btn { padding: 0.65em 1.4em; font-size: 0.62rem; }
-
-      /* Section headings */
-      .section-title { font-size: clamp(2rem, 10vw, 3.2rem); margin-bottom: 1.6rem; }
-      .section-label { font-size: 0.6rem; }
-      .mono-label { font-size: 0.6rem; }
-
-      /* Filter tabs */
-      .filter-tabs { gap: 0.4rem; margin-bottom: 1.6rem; }
-      .filter-tab { font-size: 0.56rem; padding: 0.4em 0.7em; letter-spacing: 0.1em; }
-
-      /* Cards */
+      .hero-title { font-size: clamp(1.8rem, 9vw, 2.8rem); }
+      .hero-subtitle { font-size: 0.8rem; }
+      .hero-desc { font-size: 0.78rem; max-width: 100%; }
+      .btn { padding: 0.6em 1.3em; font-size: 0.6rem; }
+      .section-title { font-size: clamp(1.9rem, 9vw, 3rem); margin-bottom: 1.4rem; }
+      .mono-label, .section-label { font-size: 0.58rem; }
+      .filter-tabs { gap: 0.35rem; margin-bottom: 1.4rem; }
+      .filter-tab { font-size: 0.54rem; padding: 0.38em 0.65em; letter-spacing: 0.08em; }
       .projects-grid { grid-template-columns: 1fr; gap: 1rem; }
-      .project-card { padding: 1.3rem; }
+      .project-card { padding: 1.2rem; }
       .project-card.wide { grid-column: span 1; grid-template-columns: 1fr; gap: 1rem; }
-      .card-title { font-size: 1.05rem; }
-      .card-desc { font-size: 0.76rem; }
-      .card-tag { font-size: 0.56rem; }
-      .card-type-badge { font-size: 0.52rem; padding: 0.2em 0.6em; }
-
-      /* About */
+      .card-title { font-size: 1rem; }
+      .card-desc { font-size: 0.75rem; }
+      .card-tag { font-size: 0.55rem; }
+      .card-type-badge { font-size: 0.5rem; padding: 0.2em 0.55em; }
       .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-      .about-title { font-size: clamp(2rem, 10vw, 3.2rem); }
-      .about-body { font-size: 0.82rem; line-height: 1.9; }
-      .skills-list { gap: 0.4rem; margin-top: 1.4rem; }
-      .skill-tag { font-size: 0.56rem; padding: 0.35em 0.7em; }
-      .portrait-placeholder { max-width: 260px; }
-
-      /* Contact */
-      .contact-title { font-size: clamp(2rem, 10vw, 3.2rem); }
-      .contact-desc { font-size: 0.78rem; }
-      .email-display { font-size: clamp(0.9rem, 4.5vw, 1.3rem); }
-      .contact-links { gap: 0.6rem; }
-
-      /* Footer */
-      footer { padding: 1.4rem 1.2rem; flex-direction: column; gap: 0.4rem; text-align: center; }
-      footer span { font-size: 0.55rem; }
+      .about-title { font-size: clamp(1.9rem, 9vw, 3rem) !important; }
+      .about-body { font-size: 0.8rem; line-height: 1.85; }
+      .skill-tag { font-size: 0.55rem; padding: 0.32em 0.65em; }
+      .contact-title { font-size: clamp(1.9rem, 9vw, 3rem) !important; }
+      .contact-desc { font-size: 0.76rem; }
+      .email-display { font-size: clamp(0.85rem, 4vw, 1.2rem); }
+      .contact-links { gap: 0.5rem; }
+      footer { padding: 1.2rem 1rem; flex-direction: column; gap: 0.3rem; text-align: center; }
+      footer span { font-size: 0.53rem; }
     }
 
-    /* ── Tablet tweaks (601px – 900px) ── */
+    /* ── Tablet (601px–900px) ── */
     @media (min-width: 601px) and (max-width: 900px) {
       nav { padding: 1.1rem 2rem; }
       section { padding: 10vh 6vw; }
-      .hero-title { font-size: clamp(2.2rem, 7vw, 4rem); }
-      .section-title { font-size: clamp(2.2rem, 7vw, 4.5rem); }
-      .about-grid { gap: 3.5rem; }
-      .projects-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); }
+      .hero-title { font-size: clamp(2rem, 6vw, 3.8rem); }
+      .section-title { font-size: clamp(2rem, 6vw, 4rem); }
+      .about-grid { gap: 3rem; }
+      .projects-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
       .project-card.wide { grid-column: span 2; }
     }
-
   </style>
 </head>
 <body>
@@ -577,10 +558,10 @@
     </svg>
 
     <div class="content">
-      <p class="mono-label section-label fade-up d1">// 01 — Projects &amp; Reels</p>
-      <h2 class="display section-title fade-up d2">Work</h2>
+      <p class="mono-label section-label">// 01 — Projects &amp; Reels</p>
+      <h2 class="display section-title">Work</h2>
 
-      <div class="filter-tabs fade-up d3">
+      <div class="filter-tabs">
         <button class="filter-tab active" data-filter="all">All</button>
         <button class="filter-tab" data-filter="reel">Demo Reel</button>
         <button class="filter-tab" data-filter="game">Game Audio</button>
@@ -592,7 +573,7 @@
       <div class="projects-grid">
 
         <!-- Wide: Demo Reel -->
-        <div class="project-card wide fade-up d3" data-type="reel">
+        <div class="project-card wide" data-type="reel">
           <div>
             <span class="card-type-badge">Demo Reel</span>
             <h3 class="card-title">2026 Sound Design Reel</h3>
@@ -610,7 +591,7 @@
         </div>
 
         <!-- Game audio -->
-        <div class="project-card fade-up d3" data-type="game">
+        <div class="project-card" data-type="game">
           <div class="img-placeholder">(WIP)</div>
           <span class="card-type-badge">Game Audio</span>
           <h3 class="card-title">Retro Repair</h3>
@@ -623,7 +604,7 @@
         </div>
 
         <!-- Sound design -->
-        <div class="project-card fade-up d4" data-type="sound">
+        <div class="project-card" data-type="sound">
           <div class="img-placeholder">(WIP)</div>
           <span class="card-type-badge">Sound Design</span>
           <h3 class="card-title">Project Title Here</h3>
@@ -636,7 +617,7 @@
         </div>
 
         <!-- Interactive -->
-        <div class="project-card fade-up d3" data-type="interactive">
+        <div class="project-card" data-type="interactive">
           <div class="video-placeholder">
             <div class="video-play-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
             <span class="video-label">(WIP)</span>
@@ -648,7 +629,7 @@
         </div>
 
         <!-- Other Projects -->
-        <div class="project-card fade-up d4" data-type="other">
+        <div class="project-card" data-type="other">
           <div class="img-placeholder tall">(WIP)</div>
           <span class="card-type-badge">Other Projects</span>
           <h3 class="card-title">For My Love</h3>
@@ -695,16 +676,16 @@
     </svg>
 
     <div class="content">
-      <p class="mono-label section-label about-label fade-up d1">// 02 — About</p>
-      <h2 class="display section-title about-title fade-up d2">About<br/>Tommy & Salune</h2>
+      <p class="mono-label section-label about-label">// 02 — About</p>
+      <h2 class="display section-title about-title">About<br/>Tommy & Salune</h2>
       <div class="about-grid">
         <div>
-          <div class="about-body fade-up d3">
+          <div class="about-body">
             <p>Hello! I am a Boston-based creator and musician aiming to make something new and interesting. Whether it's game audio and interactivity or making conceptual albums, my aim is to get as close as I can to becoming a magician with music.</p>
             <p>My approach is to learn as much as I can about techniques and systems so that I can scramble everything, hopefully correctly, into something I like. I love discovering interesting ways to tie music to emotion.</p>
             <p>I am currently a 6th semester at The Berklee College of Music, majoring in Electronic Production and Sound Design as well as Game and interactive media, and with a specialization in Sound Design for Games.</p>
           </div>
-          <div class="skills-list fade-up d4">
+          <div class="skills-list">
             <span class="skill-tag">Wwise</span><span class="skill-tag">FMOD</span>
             <span class="skill-tag">Logic</span><span class="skill-tag">Unity</span>
             <span class="skill-tag">Max/MSP</span><span class="skill-tag">Pro Tools</span>
@@ -753,11 +734,11 @@
     </svg>
 
     <div class="content">
-      <p class="mono-label section-label contact-label fade-up d1">// 03 — Contact</p>
-      <h2 class="display section-title contact-title fade-up d2">Let's<br/>Build.</h2>
-      <p class="contact-desc fade-up d3">Open to collaborations, commissions, and conversations about interactive audio, adaptive music systems, and sound design for games and media.</p>
-      <div class="email-display fade-up d4"><a href="/cdn-cgi/l/email-protection#72061d1f1f0b04161e13131c32151f131b1e5c111d1f"><span class="__cf_email__" data-cfemail="9aeef5f7f7e3ecfef6fbfbf4dafdf7fbf3f6b4f9f5f7">[email&#160;protected]</span></a></div>
-      <div class="contact-links fade-up d5">
+      <p class="mono-label section-label contact-label">// 03 — Contact</p>
+      <h2 class="display section-title contact-title">Let's<br/>Build.</h2>
+      <p class="contact-desc">Open to collaborations, commissions, and conversations about interactive audio, adaptive music systems, and sound design for games and media.</p>
+      <div class="email-display"><a href="mailto:tommyvdlaan@gmail.com">tommyvdlaan@gmail.com</a></div>
+      <div class="contact-links">
         <a href="#" class="btn btn-contact">SoundCloud</a>
         <a href="#" class="btn btn-contact">LinkedIn</a>
         <a href="#" class="btn btn-contact">Bandcamp</a>
@@ -772,73 +753,40 @@
   </footer>
 
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    /* ── Always start at top on load/reload ── */
+  <script>
+
+    /* ── Scroll to top on every load ── */
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
 
-    /* ── Theme toggle ── */
+    /* ── Theme: time-based default, user preference saved ── */
     const html      = document.documentElement;
     const toggleBtn = document.getElementById('theme-toggle');
 
-    /**
-     * Determine the default theme for first-time visitors.
-     * Priority: 1) User's saved preference  2) Sunset-aware time check  3) 6am–6pm fallback
-     *
-     * Sunset logic: uses the open-meteo API (free, no key) to fetch today's
-     * sunrise/sunset for the user's approximate location (via browser coords).
-     * While we wait for geolocation (or if it fails), we fall back to 6am/6pm.
-     * We NEVER auto-switch after the page loads — only on initial page open.
-     */
+    function themeFromHour(h) { return (h >= 6 && h < 18) ? 'light' : 'dark'; }
 
-    function themeFromHour(hour) {
-      // hour is 0–23 in local time
-      return (hour >= 6 && hour < 18) ? 'light' : 'dark';
-    }
-
-    function applyDefaultTheme(theme) {
-      // Only apply if user hasn't manually set a preference this session
-      if (!localStorage.getItem('portfolioTheme')) {
-        html.dataset.theme = theme;
-      }
-    }
-
-    // 1. Apply saved preference immediately (fastest, no flash)
     const saved = localStorage.getItem('portfolioTheme');
     if (saved) {
       html.dataset.theme = saved;
     } else {
-      // 2. Fallback: use local hour (6am–6pm = light) while we try geolocation
-      const localHour = new Date().getHours();
-      html.dataset.theme = themeFromHour(localHour);
-
-      // 3. Try to get precise sunset time via geolocation + open-meteo
+      html.dataset.theme = themeFromHour(new Date().getHours());
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const { latitude, longitude } = pos.coords;
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&daily=sunrise,sunset&timezone=auto&forecast_days=1`)
-              .then(r => r.json())
-              .then(data => {
-                if (!localStorage.getItem('portfolioTheme') && data.daily) {
-                  const sunriseStr = data.daily.sunrise[0]; // e.g. "2025-02-24T06:42"
-                  const sunsetStr  = data.daily.sunset[0];  // e.g. "2025-02-24T17:58"
-                  const now        = new Date();
-                  const sunrise    = new Date(sunriseStr);
-                  const sunset     = new Date(sunsetStr);
-                  const isDaytime  = now >= sunrise && now < sunset;
-                  html.dataset.theme = isDaytime ? 'light' : 'dark';
-                }
-              })
-              .catch(() => { /* silently fall back to hour-based default already set */ });
-          },
-          () => { /* geolocation denied — hour-based default already set, no action needed */ },
-          { timeout: 4000 }
-        );
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&daily=sunrise,sunset&timezone=auto&forecast_days=1`)
+            .then(r => r.json())
+            .then(data => {
+              if (!localStorage.getItem('portfolioTheme') && data.daily) {
+                const now     = new Date();
+                const sunrise = new Date(data.daily.sunrise[0]);
+                const sunset  = new Date(data.daily.sunset[0]);
+                html.dataset.theme = (now >= sunrise && now < sunset) ? 'light' : 'dark';
+              }
+            }).catch(() => {});
+        }, () => {}, { timeout: 4000 });
       }
     }
 
-    // Toggle on click — saves preference so auto-default never overrides again
     toggleBtn.addEventListener('click', () => {
       html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
       localStorage.setItem('portfolioTheme', html.dataset.theme);
@@ -852,20 +800,11 @@
         const b = document.createElement('div');
         b.className = 'bar';
         b.style.cssText = `height:${h}px; animation-delay:${(i*0.07).toFixed(2)}s`;
-        // Color from CSS var so it reacts to theme
         b.style.background = `rgba(var(--works-acc-r),var(--works-acc-g),var(--works-acc-b),${i%3===0?0.35:0.45})`;
         el.appendChild(b);
       });
     }
     ['bars1','bars2','bars3','bars4'].forEach(makeWaveBars);
-
-    /* Update bar colors when theme changes */
-    const observer = new MutationObserver(() => {
-      document.querySelectorAll('.bar').forEach((b, i) => {
-        b.style.background = `rgba(var(--works-acc-r),var(--works-acc-g),var(--works-acc-b),${i%3===0?0.35:0.45})`;
-      });
-    });
-    observer.observe(html, { attributes: true, attributeFilter: ['data-theme'] });
 
     /* ── Filter tabs ── */
     document.querySelectorAll('.filter-tab').forEach(tab => {
@@ -875,30 +814,22 @@
         const f = tab.dataset.filter;
         document.querySelectorAll('.project-card').forEach(card => {
           const match = f === 'all' || card.dataset.type === f;
-          card.style.opacity      = match ? '1' : '0.2';
-          card.style.transform    = match ? '' : 'scale(0.97)';
-          card.style.pointerEvents= match ? '' : 'none';
+          card.style.opacity       = match ? '1' : '0.2';
+          card.style.transform     = match ? '' : 'scale(0.97)';
+          card.style.pointerEvents = match ? '' : 'none';
         });
       });
     });
 
-    /* ── Fade-up observer ── */
-    const fadeObs = new IntersectionObserver(es => {
-      es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.fade-up').forEach(el => fadeObs.observe(el));
-
     /* ── Nav accent per section ── */
-    const nav = document.getElementById('main-nav');
+    const nav     = document.getElementById('main-nav');
     const navLogo = nav.querySelector('.nav-logo');
-
     const SM = {
-      hero:    { dark: { bg:'rgba(12,8,9,0.75)',    b:'rgba(232,180,192,0.08)', c:'#e8b4c0' }, light: { bg:'rgba(253,240,243,0.88)', b:'rgba(160,48,80,0.1)',    c:'#a03050' } },
-      works:   { dark: { bg:'rgba(6,1,14,0.75)',    b:'rgba(184,85,245,0.1)',   c:'#b855f5' }, light: { bg:'rgba(242,238,255,0.88)', b:'rgba(96,32,160,0.1)',    c:'#6020a0' } },
-      about:   { dark: { bg:'rgba(8,5,3,0.75)',     b:'rgba(200,136,64,0.1)',   c:'#c88840' }, light: { bg:'rgba(253,244,232,0.88)', b:'rgba(122,64,8,0.1)',     c:'#7a4008' } },
-      contact: { dark: { bg:'rgba(5,6,1,0.75)',     b:'rgba(200,240,0,0.08)',   c:'#c8f000' }, light: { bg:'rgba(238,248,240,0.88)', b:'rgba(30,104,50,0.1)',    c:'#1e6832' } },
+      hero:    { dark: { bg:'rgba(12,8,9,0.75)',    b:'rgba(232,180,192,0.08)', c:'#e8b4c0' }, light: { bg:'rgba(253,240,243,0.88)', b:'rgba(160,48,80,0.1)',   c:'#a03050' } },
+      works:   { dark: { bg:'rgba(6,1,14,0.75)',    b:'rgba(184,85,245,0.1)',   c:'#b855f5' }, light: { bg:'rgba(242,238,255,0.88)', b:'rgba(96,32,160,0.1)',   c:'#6020a0' } },
+      about:   { dark: { bg:'rgba(8,5,3,0.75)',     b:'rgba(200,136,64,0.1)',   c:'#c88840' }, light: { bg:'rgba(253,244,232,0.88)', b:'rgba(122,64,8,0.1)',    c:'#7a4008' } },
+      contact: { dark: { bg:'rgba(5,6,1,0.75)',     b:'rgba(200,240,0,0.08)',   c:'#c8f000' }, light: { bg:'rgba(238,248,240,0.88)', b:'rgba(30,104,50,0.1)',   c:'#1e6832' } },
     };
-
     const secObs = new IntersectionObserver(es => {
       es.forEach(e => {
         if (!e.isIntersecting) return;
@@ -912,8 +843,20 @@
     }, { threshold: 0.35 });
     document.querySelectorAll('section').forEach(s => secObs.observe(s));
 
-    /* Also update nav when theme changes */
-    observer.observe(html, { attributes: true, attributeFilter: ['data-theme'] });
+    /* Update nav on theme change */
+    new MutationObserver(() => {
+      const active = [...document.querySelectorAll('section')].find(s => {
+        const r = s.getBoundingClientRect();
+        return r.top <= window.innerHeight * 0.5 && r.bottom >= window.innerHeight * 0.5;
+      });
+      if (active && SM[active.id]) {
+        const m = SM[active.id];
+        const t = html.dataset.theme;
+        nav.style.background        = m[t].bg;
+        nav.style.borderBottomColor = m[t].b;
+        navLogo.style.color         = m[t].c;
+      }
+    }).observe(html, { attributes: true, attributeFilter: ['data-theme'] });
 
     /* ── Geometry parallax ── */
     const geos = [
@@ -936,7 +879,7 @@
             const b = document.getElementById(id);
             if (!b) return;
             const diff = sy - b.offsetTop + window.innerHeight;
-            b.style.transform = `translateY(${-Math.max(0,Math.min(diff*0.06,30))}px)`;
+            b.style.transform = `translateY(${-Math.max(0, Math.min(diff * 0.06, 30))}px)`;
           });
           tick = false;
         });
@@ -944,6 +887,15 @@
       }
     });
 
-    /* ── Pause bars off-screen ── */
+    /* ── Pause waveform bars when off-screen ── */
     document.querySelectorAll('.project-card').forEach(card => {
-      new Intersecti
+      new IntersectionObserver(([e]) => {
+        card.querySelectorAll('.bar').forEach(b => {
+          b.style.animationPlayState = e.isIntersecting ? 'running' : 'paused';
+        });
+      }, { threshold: 0.1 }).observe(card);
+    });
+
+  </script>
+</body>
+</html>
