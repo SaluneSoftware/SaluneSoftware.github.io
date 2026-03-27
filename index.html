@@ -499,7 +499,7 @@
       </button>
     </div>
     <ul class="nav-links">
-      <li><a href="/rivals/" id="rivals-nav-btn" style="border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:.3em .9em;font-size:.6rem;letter-spacing:.12em;transition:all .2s;">T3: Rivals</a></li>
+      <li><a href="rivals/" id="rivals-nav-btn" style="border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:.3em .9em;font-size:.6rem;letter-spacing:.12em;transition:all .2s;">T3: Rivals</a></li>
       <li><a href="#works">Projects</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -777,14 +777,33 @@
     const html      = document.documentElement;
     const toggleBtn = document.getElementById('theme-toggle');
 
-    // Simple theme toggle — default light, no geolocation
-    const savedTheme = localStorage.getItem('rivalsTheme');
-    html.dataset.theme = savedTheme || 'light';
+    function themeFromHour(h) { return (h >= 6 && h < 18) ? 'light' : 'dark'; }
 
-    const toggleBtn = document.getElementById('theme-toggle');
+    const saved = localStorage.getItem('portfolioTheme');
+    if (saved) {
+      html.dataset.theme = saved;
+    } else {
+      html.dataset.theme = themeFromHour(new Date().getHours());
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&daily=sunrise,sunset&timezone=auto&forecast_days=1`)
+            .then(r => r.json())
+            .then(data => {
+              if (!localStorage.getItem('portfolioTheme') && data.daily) {
+                const now     = new Date();
+                const sunrise = new Date(data.daily.sunrise[0]);
+                const sunset  = new Date(data.daily.sunset[0]);
+                html.dataset.theme = (now >= sunrise && now < sunset) ? 'light' : 'dark';
+              }
+            }).catch(() => {});
+        }, () => {}, { timeout: 4000 });
+      }
+    }
+
     toggleBtn.addEventListener('click', () => {
       html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('rivalsTheme', html.dataset.theme);
+      localStorage.setItem('portfolioTheme', html.dataset.theme);
     });
 
     /* ── Waveform bars ── */
