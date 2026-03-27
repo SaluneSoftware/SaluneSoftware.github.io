@@ -379,7 +379,7 @@ function initActx(){
   masterGain.connect(actx.destination);
 }
 
-function fadeTo(key,target,ms=2000){
+function fadeTo(key,target,ms=100){
   trackTargets[key]=target;
   const g=trackGains[key];if(!g)return;
   const scaledTarget=musicMuted?0:target;
@@ -1429,8 +1429,7 @@ function doBot(){
   },d);
 }
 
-
-// ══ AMBIENT WATERFALL ══
+// ══ AMBIENT ══
 (function(){
   const el=document.getElementById('ambient');
   const chars=['X','O','S','F','M','Q'];
@@ -1454,7 +1453,8 @@ function doBot(){
     const pk=0.09+Math.random()*0.13;
     d.style.left=Math.round(x)+'px';
     d.style.setProperty('--sy',Math.round(sy)+'px');
-    d.style.setProperty('--rot',rot+'deg');d.style.setProperty('--spin',spin+'deg');
+    d.style.setProperty('--rot',rot+'deg');
+    d.style.setProperty('--spin',spin+'deg');
     d.style.setProperty('--pk',pk);
     d.style.animationName='ambfall';d.style.animationDuration=dur+'s';
     d.style.animationDelay=del+'s';d.style.animationTimingFunction='linear';
