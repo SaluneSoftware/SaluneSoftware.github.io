@@ -1429,48 +1429,40 @@ function doBot(){
   },d);
 }
 
-// ══ AMBIENT ══
+
+// ══ AMBIENT WATERFALL ══
 (function(){
   const el=document.getElementById('ambient');
   const chars=['X','O','S','F','M','Q'];
   const themes=[{fg:'var(--r)',bg:'var(--r-l)',bd:'var(--r-m)'},{fg:'var(--b)',bg:'var(--b-l)',bd:'var(--b-m)'},{fg:'var(--g)',bg:'var(--g-l)',bd:'var(--g-m)'},{fg:'var(--o)',bg:'var(--o-l)',bd:'var(--o-m)'},{fg:'var(--w)',bg:'var(--w-l)',bd:'var(--w-m)'},{fg:'var(--y)',bg:'var(--y-l)',bd:'var(--y-m)'}];
-  const COUNT=55;const tiles=[];
+  const COUNT=55,tiles=[];
   function makeTile(){
     const ci=Math.floor(Math.random()*chars.length),t=themes[ci];
     const d=document.createElement('div');d.className='amb';d.textContent=chars[ci];
     d.style.color=t.fg;d.style.background=t.bg;d.style.border='1.5px solid '+t.bd;
-    d.style.fontSize=(Math.random()<.25?'2.6rem':(Math.random()<.5?'1.8rem':'2.1rem'));
-    const side=Math.random()<.5?66:72;d.style.width=side+'px';d.style.height=side+'px';
+    d.style.fontSize=(Math.random()<0.25?'2.6rem':(Math.random()<0.5?'1.8rem':'2.1rem'));
+    const side=Math.random()<0.5?66:72;d.style.width=side+'px';d.style.height=side+'px';
     el.appendChild(d);return d;
   }
   function placeTile(d){
     const vw=window.innerWidth,vh=window.innerHeight;
-    // Spread evenly across full screen width (not just sides)
-    const x=Math.random()*(vw+72)-36;
-    // Start above screen — varying heights so they're staggered at load
-    const sy=(-72-Math.random()*vh);
-    const rot=(Math.random()-.5)*40,spin=(Math.random()-.5)*20;
-    const dur=20+Math.random()*24; // 20-44s fall
-    const del=-(Math.random()*dur); // start mid-fall so screen is populated immediately
-    const pk=.07+Math.random()*.12; // opacity range
+    const x=Math.random()*vw-36;
+    const bias=Math.random();
+    const sy=bias<0.55?(-70-Math.random()*0.5*vh):bias<0.85?(-36-Math.random()*0.1*vh):(Math.random()*0.25*vh-36);
+    const rot=(Math.random()-.5)*36,spin=(Math.random()-.5)*18;
+    const dur=18+Math.random()*22;const del=-(Math.random()*dur);
+    const pk=0.09+Math.random()*0.13;
     d.style.left=Math.round(x)+'px';
     d.style.setProperty('--sy',Math.round(sy)+'px');
-    d.style.setProperty('--rot',rot+'deg');
-    d.style.setProperty('--spin',spin+'deg');
+    d.style.setProperty('--rot',rot+'deg');d.style.setProperty('--spin',spin+'deg');
     d.style.setProperty('--pk',pk);
-    d.style.animationName='ambfall';
-    d.style.animationDuration=dur+'s';
-    d.style.animationDelay=del+'s';
-    d.style.animationTimingFunction='linear';
+    d.style.animationName='ambfall';d.style.animationDuration=dur+'s';
+    d.style.animationDelay=del+'s';d.style.animationTimingFunction='linear';
     d.style.animationIterationCount='infinite';
-    d.style.zIndex=Math.floor(pk*20);
+    d.style.zIndex=pk<0.11?0:pk<0.16?1:2;
   }
   for(let k=0;k<COUNT;k++){const d=makeTile();placeTile(d);tiles.push(d);}
-  // Periodically reposition a tile to maintain variety
-  setInterval(()=>{
-    const d=tiles[Math.floor(Math.random()*tiles.length)];
-    placeTile(d);
-  },4000);
+  setInterval(()=>placeTile(tiles[Math.floor(Math.random()*tiles.length)]),5000);
 })();
 
 buildBoardEl();
