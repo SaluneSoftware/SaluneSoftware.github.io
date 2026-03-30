@@ -49,7 +49,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 #ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
 .amb{position:absolute;font-family:'DM Serif Display',serif;display:flex;align-items:center;justify-content:center;border-radius:7px;will-change:transform,opacity;}
 [data-theme="dark"] .amb{box-shadow:0 0 8px rgba(255,255,255,0.06);}
-@keyframes ambfall{0%{transform:translateY(var(--sy)) rotate(var(--rot));opacity:0;}5%{opacity:var(--pk);}82%{opacity:var(--pk);}100%{transform:translateY(calc(var(--sy)+120vh)) rotate(calc(var(--rot)+var(--spin)));opacity:0;}}
+@keyframes ambfall{0%{transform:translateY(var(--sy)) rotate(var(--rot));opacity:0;}6%{opacity:var(--pk);}80%{opacity:var(--pk);}100%{transform:translateY(calc(var(--sy)+130vh)) rotate(calc(var(--rot)+var(--spin)));opacity:0;}}
 
 /* ══ TOP-LEFT CONTROLS ══ */
 #top-left{position:fixed;top:12px;left:12px;z-index:200;display:flex;align-items:center;gap:8px;}
@@ -161,7 +161,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .board{display:grid;grid-template-columns:repeat(4,var(--cell));gap:var(--gap);margin:0 auto .5rem;width:fit-content;padding:10px;background:var(--border);border-radius:10px;box-shadow:var(--glow);}
 [data-theme="dark"] .board{background:#2a2520;}
 /* Animation overlay canvas */
-#anim-canvas{position:absolute;top:10px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:50;}
+#anim-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;}
 
 .cell{width:var(--cell);height:var(--cell);background:var(--surface);border-radius:4px;cursor:pointer;font-family:'DM Serif Display',serif;font-size:2.3rem;display:flex;align-items:center;justify-content:center;transition:background .12s,transform .08s,box-shadow .12s;user-select:none;position:relative;overflow:visible;}
 .cell:hover:not(.taken){background:var(--faint);transform:scale(1.03);}.cell.taken{cursor:default;}
@@ -200,15 +200,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 /* ══ POISON — 6 STAGES, rising from bottom ══ */
 /* Stage 6=just poisoned (brightest, tallest at end), 1=dying */
 .cell .poison-fill{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;pointer-events:none;z-index:1;}
-/* Stage counts: 6→faint bottom sliver, 1→full cell */
-.cell.ps6 .poison-fill{height:8%;background:rgba(139,92,246,.18);}
-.cell.ps5 .poison-fill{height:28%;background:rgba(124,58,237,.25);}
-.cell.ps4 .poison-fill{height:50%;background:rgba(109,40,217,.32);animation:pwave 1.2s ease-in-out infinite;}
-.cell.ps3 .poison-fill{height:68%;background:rgba(91,33,182,.40);animation:pwave 1s ease-in-out infinite;}
-.cell.ps2 .poison-fill{height:84%;background:rgba(76,29,149,.50);animation:pwave .9s ease-in-out infinite;}
-.cell.ps1 .poison-fill{height:100%;border-radius:4px;background:rgba(60,22,120,.60);animation:pblink .5s ease-in-out infinite;}
-@keyframes pwave{0%,100%{transform:scaleX(1) scaleY(1);}50%{transform:scaleX(1.03) scaleY(1.02);}}
-@keyframes pblink{0%,100%{opacity:1;}50%{opacity:.35;}}
+/* 6 poison stages — rises from bottom, wave on 3-5, blink on 1 */
+.cell .poison-fill{
+  position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;
+  pointer-events:none;z-index:1;transition:height .4s ease,background .4s ease;
+}
+.cell.ps6 .poison-fill{height:10%;background:linear-gradient(to top,rgba(139,92,246,.30),rgba(167,139,250,.12));}
+.cell.ps5 .poison-fill{height:26%;background:linear-gradient(to top,rgba(124,58,237,.38),rgba(139,92,246,.18));}
+.cell.ps4 .poison-fill{height:44%;background:linear-gradient(to top,rgba(109,40,217,.46),rgba(124,58,237,.24));animation:pwave 1.1s ease-in-out infinite;}
+.cell.ps3 .poison-fill{height:62%;background:linear-gradient(to top,rgba(91,33,182,.54),rgba(109,40,217,.30));animation:pwave 1s ease-in-out infinite;}
+.cell.ps2 .poison-fill{height:80%;background:linear-gradient(to top,rgba(76,29,149,.62),rgba(91,33,182,.38));animation:pwave .9s ease-in-out infinite;}
+.cell.ps1 .poison-fill{height:100%;border-radius:4px;background:linear-gradient(to top,rgba(60,22,120,.72),rgba(76,29,149,.50));animation:pblink .45s ease-in-out infinite;}
+@keyframes pwave{0%,100%{clip-path:inset(0 0 0 0);transform:scaleX(1);}50%{transform:scaleX(1.04);clip-path:inset(0 -2px 0 -2px);}}
+@keyframes pblink{0%,100%{opacity:1;}50%{opacity:.28;}}
 
 /* ══ FRUIT DOTS ══ */
 .fdot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;}
@@ -379,7 +383,7 @@ function initActx(){
   masterGain.connect(actx.destination);
 }
 
-function fadeTo(key,target,ms=100){
+function fadeTo(key,target,ms=2000){
   trackTargets[key]=target;
   const g=trackGains[key];if(!g)return;
   const scaledTarget=musicMuted?0:target;
@@ -442,8 +446,8 @@ async function startMusicManually(){
   // Start all sources simultaneously at offset 0
   keys.forEach(k=>startTrack(k,syncOffset));
 
-  // Base only for 10s
-  fadeTo('base',1,2000);
+  // Base starts immediately, char tracks added after 10s
+  fadeTo('base',1,0);  // instant start
   setTimeout(()=>onCharSelect(),10000);
 
   updateSpeakerIcon();
@@ -459,8 +463,8 @@ function applyMute(){
   if(!masterGain)return;
   const now=actx.currentTime;
   masterGain.gain.cancelScheduledValues(now);
-  masterGain.gain.setValueAtTime(masterGain.gain.value,now);
-  masterGain.gain.linearRampToValueAtTime(musicMuted?0:masterVol,now+1.5);
+  // Instant mute/unmute — no delay
+  masterGain.gain.setValueAtTime(musicMuted?0:masterVol,now);
 }
 
 function onVolSlider(v){
@@ -487,8 +491,15 @@ function onCharSelect(){
 function onGameStart(){if(!musicStarted)return;setTimeout(()=>Object.keys(TRACK_FILES).forEach(k=>fadeTo(k,1,2000)),1500);}
 function onGameEnd(){if(!musicStarted)return;onCharSelect();}
 function goToSite(){
-  if(musicStarted){Object.keys(TRACK_FILES).forEach(k=>fadeTo(k,0,2000));}
-  setTimeout(()=>window.location.href='https://salunesoftware.github.io/',2100);
+  if(musicStarted){
+    // Instant fade out when leaving
+    if(masterGain){
+      const now=actx.currentTime;
+      masterGain.gain.cancelScheduledValues(now);
+      masterGain.gain.linearRampToValueAtTime(0,now+0.3);
+    }
+  }
+  setTimeout(()=>window.location.href='https://salunesoftware.github.io/',400);
 }
 
 function updateSpeakerIcon(){
@@ -557,96 +568,118 @@ let factTileData={},factPower=[null,null];
 function rollFactPower(s){const id=FACTOTUM_POOL[Math.floor(Math.random()*FACTOTUM_POOL.length)];factPower[s]=id;return id;}
 function effId(s){if(rch(s).id==='factotum')return factPower[s]||'expunger';return rch(s).id;}
 
-// ══ QUANTUM STATE ══
-// qTiles[slot] = array of {idx, perceived, turnPlaced}
-// Only most recent non-perceived tile projects
-// After 1 full round (opponent goes then Q goes again) undisturbed → expand + remove
-let qTiles=[[], []]; // per slot
-let qRoundCount=[0,0]; // increments each time Q player completes a turn
+// ══════════════════════════════════════════════════════
+// QUANTUM STATE — Full rewrite per spec
+// 
+// qState[boardIdx] = {slot, qTurn}
+//   slot: which player (0 or 1) owns this tile
+//   qTurn: which Q-player-turn this was placed (or spawned)
+//   perceived: true if opponent has placed on this tile's ghost (no longer matures)
+//
+// qPlayerTurn[slot]: increments each time Q player finishes a turn
+//
+// GHOSTS: every non-perceived Q tile projects empty cells in its row + col
+// MATURATION: at start of Q player's turn, tiles with qTurn < current turn AND
+//   perceived=false → spawn up to 4 ortho real tiles, self removed
+// TELEPORT: when opponent places on any ghost cell
+// ══════════════════════════════════════════════════════
+let qState={};         // boardIdx → {slot, qTurn, perceived}
+let qPlayerTurn=[0,0]; // per-slot Q-turn counter
 
-function getActiveQ(slot){
-  // Most recent non-perceived tile
-  const ts=qTiles[slot];
-  for(let i=ts.length-1;i>=0;i--){
-    if(!ts[i].perceived&&board[ts[i].idx]!==null)return ts[i];
-  }
-  return null;
+function qIsPlayer(slot){
+  return rch(slot).id==='quantum'||(rch(slot).id==='factotum'&&effId(slot)==='quantum');
 }
 
+// Build ghost map: all empty cells in row+col of any non-perceived Q tile
+// Returns: { boardIdx: {slot, sourceIdx, dist} }
 function buildQuantumGhosts(){
   const map={};
-  for(let s=0;s<2;s++){
-    const qt=getActiveQ(s);
-    if(!qt)continue;
-    const qi=qt.idx;
-    if(board[qi]===null)continue;
+  Object.entries(qState).forEach(([idxStr,st])=>{
+    if(st.perceived)return;
+    const qi=parseInt(idxStr);
+    if(board[qi]===null){delete qState[qi];return;}
     const qr=Math.floor(qi/N),qc=qi%N;
-    for(let cc=0;cc<N;cc++){const j=qr*N+cc;if(j!==qi&&board[j]===null){const d=Math.abs(cc-qc);if(!map[j]||d<map[j].dist)map[j]={slot:s,dist:d,qi};}}
-    for(let rr=0;rr<N;rr++){const j=rr*N+qc;if(j!==qi&&board[j]===null){const d=Math.abs(rr-qr);if(!map[j]||d<map[j].dist)map[j]={slot:s,dist:d,qi};}}
-  }
+    // Row
+    for(let cc=0;cc<N;cc++){
+      const j=qr*N+cc;
+      if(j===qi||board[j]!==null)continue;
+      const d=Math.abs(cc-qc);
+      if(!map[j]||d<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:d};
+    }
+    // Column
+    for(let rr=0;rr<N;rr++){
+      const j=rr*N+qc;
+      if(j===qi||board[j]!==null)continue;
+      const d=Math.abs(rr-qr);
+      if(!map[j]||d<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:d};
+    }
+  });
   return map;
 }
 
-// Ghost rendering: just a transparent Q symbol over the cell
 function ghostOpacity(d){return d===1?0.22:d===2?0.13:0.07;}
 
+// Teleport a Q tile at qi (belonging to slot) to a random non-ghost empty cell
 function teleportQTile(qi,slot){
   if(board[qi]===null)return;
   const v=sym(slot);
-  // Build ghosts excluding this Q tile temporarily
   const ghosts=buildQuantumGhosts();
-  const cands=board.map((bv,j)=>bv===null&&!ghosts[j]?j:-1).filter(j=>j>=0);
-  const pool=cands.length?cands:board.map((bv,j)=>bv===null?j:-1).filter(j=>j>=0);
+  // Prefer cells not in any ghost projection
+  let pool=board.map((bv,j)=>bv===null&&!ghosts[j]?j:-1).filter(j=>j>=0);
+  if(!pool.length)pool=board.map((bv,j)=>bv===null?j:-1).filter(j=>j>=0);
   if(!pool.length)return;
   const dest=pool[Math.floor(Math.random()*pool.length)];
-  // Remove from board and state
+  // Move tile
   board[qi]=null;
   if(factTileData[qi]){factTileData[dest]=factTileData[qi];delete factTileData[qi];}
-  qTiles[slot]=qTiles[slot].filter(t=>t.idx!==qi);
-  // Place at destination — fresh, unperceived
+  delete qState[qi];
   board[dest]=v;
-  qTiles[slot].push({idx:dest,perceived:false,turnPlaced:qRoundCount[slot]});
+  qState[dest]={slot,qTurn:qPlayerTurn[slot],perceived:false};
   playQAnim(dest);
 }
 
-// Called when any piece is placed at pos — check if it hits a Q ghost
+// Called after ANY tile placement at pos — check if it lands on a Q ghost
+// placingSlot = who just placed at pos
 function checkQuantumTeleportByAny(placingSlot,pos){
-  // Check both slots' Q projections
-  for(let qs=0;qs<2;qs++){
-    if(qs===placingSlot)continue; // only opponent triggers teleport
-    const qId=rch(qs).id;
-    if(qId!=='quantum'&&qId!=='factotum')continue;
-    const qt=getActiveQ(qs);
-    if(!qt)continue;
-    const ghosts=buildQuantumGhosts();
-    if(!ghosts[pos]||ghosts[pos].slot!==qs)continue;
-    if(ghosts[pos].qi!==qt.idx)continue;
-    // Mark as perceived, teleport
-    qt.perceived=true;
-    teleportQTile(qt.idx,qs);
-  }
+  const ghosts=buildQuantumGhosts();
+  if(!ghosts[pos])return;
+  const {slot:qs,sourceIdx:qi}=ghosts[pos];
+  // Only teleport if an OPPONENT placed on the ghost
+  if(qs===placingSlot)return;
+  // Check that qs is actually playing quantum
+  if(!qIsPlayer(qs))return;
+  // Mark source tile as perceived (won't mature, will teleport)
+  if(qState[qi])qState[qi].perceived=true;
+  // Teleport the source tile
+  teleportQTile(qi,qs);
 }
 
-// Called at START of Q player's turn: check if previous Q tile should expand
+// Called at the START of a Q player's turn (before they place)
+// Mature all unperceived tiles from previous turns
 function matureQuantumTiles(slot){
   const v=sym(slot);
-  // Find tiles that were placed last round and not perceived
-  const toExpand=qTiles[slot].filter(t=>!t.perceived&&t.turnPlaced<qRoundCount[slot]&&board[t.idx]!==null);
-  toExpand.forEach(qt=>{
-    const qi=qt.idx;
-    // Spawn ortho empty neighbours as real Q tiles
+  const curTurn=qPlayerTurn[slot];
+  // Find tiles placed before current turn that are still unperceived
+  const toMature=Object.entries(qState)
+    .filter(([,st])=>st.slot===slot&&!st.perceived&&st.qTurn<curTurn)
+    .map(([idx])=>parseInt(idx));
+  
+  toMature.forEach(qi=>{
+    if(board[qi]===null){delete qState[qi];return;}
+    // Spawn real Q tiles in empty ortho neighbors
     adjO(qi).forEach(j=>{
       if(board[j]===null){
         board[j]=v;
-        qTiles[slot].push({idx:j,perceived:false,turnPlaced:qRoundCount[slot]});
+        qState[j]={slot,qTurn:curTurn,perceived:false};
       }
     });
-    // Remove original
+    // Remove the source tile
     board[qi]=null;
-    qTiles[slot]=qTiles[slot].filter(t=>t.idx!==qi);
+    delete qState[qi];
     if(factTileData[qi])delete factTileData[qi];
   });
-  qRoundCount[slot]++;
+  // Increment Q turn counter for next maturation check
+  qPlayerTurn[slot]++;
 }
 
 // ══ SELECT UI ══
@@ -724,24 +757,26 @@ function updateScoreDisplay(){
 function buildBoardEl(){
   const el=document.getElementById('board');el.innerHTML='';
   for(let i=0;i<N*N;i++){const c=document.createElement('div');c.className='cell';c.addEventListener('click',()=>handleClick(i));el.appendChild(c);}
-  resizeCanvas();
+  // Defer canvas resize to after layout
+  requestAnimationFrame(()=>requestAnimationFrame(resizeCanvas));
 }
 function resizeCanvas(){
-  const board=document.getElementById('board');
+  const boardWrap=document.querySelector('.board-wrap');
   const canvas=document.getElementById('anim-canvas');
-  const cellSz=board.querySelector('.cell')?.offsetWidth||90;
-  const total=(cellSz+parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap'))||6)*4;
-  canvas.width=total;canvas.height=total;
-  canvas.style.width=total+'px';canvas.style.height=total+'px';
+  if(!boardWrap)return;
+  const w=boardWrap.offsetWidth,h=boardWrap.offsetHeight;
+  canvas.width=w||1;canvas.height=h||1;
 }
 function resetRound(){
   board=Array(N*N).fill(null);poison=Array(N*N).fill(0);fruit=Array(N*N).fill(0);
   lastP=[-1,-1];pTurnCnt=[0,0];factPower=[null,null];factTileData={};
-  qTiles=[[], []];qRoundCount=[0,0];
+  qState={};qPlayerTurn=[0,0];
   turnIdx=0;phase='place';over=false;botThink=false;bonusSlot=-1;moleExpecting=-1;moleFrom=-1;
   if(rch(0).id==='factotum')rollFactPower(0);
   if(rch(1).id==='factotum')rollFactPower(1);
   updateFactBanner(true);renderBoard();setStatus();
+  // Restore music: all tracks fade back in on new round
+  if(musicStarted) setTimeout(()=>Object.keys(TRACK_FILES).forEach(k=>fadeTo(k,1,2000)),100);
   if(isBot())setTimeout(doBot,500);
 }
 
@@ -759,7 +794,7 @@ function tickPoison(){
   for(let i=0;i<N*N;i++){
     if(poison[i]>0){
       poison[i]--;
-      if(poison[i]===0){board[i]=null;qTiles.forEach(ts=>{const t=ts.find(x=>x.idx===i);if(t)t.perceived=true;});}
+      if(poison[i]===0){board[i]=null;if(qState[i])delete qState[i];}
     }
   }
 }
@@ -841,14 +876,8 @@ function doPlace(i,s,isBonus){
   const v=sym(s),eid=effId(s);
   const isSnake=eid==='snake',isQ=eid==='quantum',isFact=rch(s).id==='factotum';
 
-  // Q: note if placing on own ghost (just clear old projection, no teleport)
-  if(isQ){
-    const gm=buildQuantumGhosts();
-    if(gm[i]&&gm[i].slot===s){
-      const prev=getActiveQ(s);
-      if(prev)prev.perceived=true; // old projection clears
-    }
-  }
+  // Q: check if placing on own ghost — no special action, just proceed
+  // (opponent-on-ghost teleport handled in checkQuantumTeleportByAny)
 
   const prevPlaced=lastP[s]; // save before updating
   board[i]=v;
@@ -862,13 +891,11 @@ function doPlace(i,s,isBonus){
     playFactotumAnim(i,factPower[s],s,null);
   }
 
-  // Q: register new tile. If placed on own ghost, just refresh projection.
+  // Q: register new tile in qState
   if(isQ){
-    // Mark previous active tile's projection as stopped (new one takes over)
-    const prev=getActiveQ(s);
-    if(prev&&prev.idx!==i)prev.perceived=true; // old tile stops projecting
-    // Register new tile
-    qTiles[s].push({idx:i,perceived:false,turnPlaced:qRoundCount[s]});
+    // Placing Q on an own ghost: the source tile keeps projecting (no special action)
+    // Just register this new tile
+    qState[i]={slot:s,qTurn:qPlayerTurn[s],perceived:false};
     playQAnim(i);
   }
 
@@ -886,6 +913,9 @@ function doPlace(i,s,isBonus){
 
   // Opp fruit → poison eater
   if(oppFruit){poison[i]=6;}
+
+  // Check if this placement hits a quantum ghost of the opponent
+  if(!isQ)checkQuantumTeleportByAny(s,i);
 
   const win=chkWin(s);
   if(win){renderBoard();markWin(win);endGame(s);return;}
@@ -927,7 +957,7 @@ function finishAfterBonus(s){
 function doPwr(i,s){
   const eid=effId(s);
   if(eid==='expunger'){
-    board[i]=null;poison[i]=0;qTiles.forEach(ts=>{const t=ts.find(x=>x.idx===i);if(t)t.perceived=true;});
+    board[i]=null;poison[i]=0;if(qState[i])delete qState[i];
     playExpungerAnim(i,s,()=>advanceTurn());
     return;
   }
@@ -960,18 +990,31 @@ function autoAdvance(s){
 
 function advanceTurn(){
   const next=1-turnIdx;
-  // Mature Q tiles for the CURRENT player before switching (end of their turn)
-  if(rch(turnIdx).id==='quantum'||(rch(turnIdx).id==='factotum'&&effId(turnIdx)==='quantum')){
-    matureQuantumTiles(turnIdx);
-    const qw=chkWin(turnIdx);if(qw){renderBoard();markWin(qw);endGame(turnIdx);return;}
-  }
-  if(effId(next)==='snake'){tickPoison();const w=chkWin(next);if(w){renderBoard();markWin(w);endGame(next);return;}}
+  // Mature Q tiles for the NEXT player at the start of their turn
+  // (called right before they place, so ghost state is fresh)
+  // Tick poison every turn (6 stages across 3 full rounds)
+  tickPoison();
+  const w=chkWin(next);if(w){renderBoard();markWin(w);endGame(next);return;}
   if(chkDraw()){renderBoard();endGame(-1);return;}
   const ceid=effId(turnIdx);
+  // Spawn fruit once for snake (includes factotum-as-snake via effId)
   if(ceid==='snake'&&!cancelledOut(turnIdx))spawnFruitFor(turnIdx);
-  if(rch(turnIdx).id==='factotum'&&factPower[turnIdx]==='snake'&&!cancelledOut(turnIdx))spawnFruitFor(turnIdx);
   moleExpecting=-1;moleFrom=-1;turnIdx=next;phase='place';bonusSlot=-1;
+  // If next player is Q, mature their tiles (before they place this turn)
+  if(qIsPlayer(next)){
+    matureQuantumTiles(next);
+    const qw=chkWin(next);if(qw){renderBoard();markWin(qw);endGame(next);return;}
+  }
   if(rch(next).id==='factotum')rollFactPower(next);
+  // Mole blocked: if no valid placements, skip turn automatically
+  if(rch(next).id==='mole'&&moleValidPlacements(next).length===0){
+    updateFactBanner(true);renderBoard();
+    const st=document.getElementById('stbar');
+    st.className='stbar';
+    st.innerHTML=`<span class="tc ${prop(next,'tc')}">${displayName(next)}</span> &mdash; no valid placements — turn skipped.`;
+    setTimeout(()=>advanceTurn(),900);
+    return;
+  }
   updateFactBanner(true);renderBoard();setStatus();
   if(isBot())setTimeout(doBot,400);
 }
@@ -1049,13 +1092,16 @@ function renderBoard(){
   cells.forEach((cell,i)=>{
     cell.className='cell';cell.innerHTML='';cell.style.background='';cell.style.boxShadow='';
 
-    // Quantum ghost: transparent Q symbol overlay (looks like a ghost tile)
+    // Quantum ghost: transparent Q symbol, cascading fade by distance
     if(!board[i]&&qGhosts[i]&&!tgts.includes(i)){
-      const op=ghostOpacity(qGhosts[i].dist);
-      // Barely visible: just a faint Q symbol, no background color change
-      cell.style.background=''; // keep white/surface
+      const {dist,sourceIdx}=qGhosts[i];
+      const op=ghostOpacity(dist);
+      cell.style.background=''; // no background tint
       const dot=document.createElement('div');dot.className='qgh';
-      dot.style.color=`rgba(184,144,0,${op.toFixed(3)})`;
+      // Cascading blink: tiles closer to source blink faster
+      const blinkClass=dist===1?'qgh-blink1':dist===2?'qgh-blink2':'qgh-blink3';
+      dot.classList.add(blinkClass);
+      dot.style.color=`rgba(184,144,0,${(op+0.05).toFixed(3)})`;
       dot.style.fontSize='2rem';
       dot.textContent='Q';cell.appendChild(dot);
     }
@@ -1071,7 +1117,8 @@ function renderBoard(){
       if(s>=0)cell.classList.add('taken',prop(s,'pc'));
       let disp=board[i].toUpperCase();
       if(s>=0&&rch(s).id==='factotum'){const td=factTileData[i];if(td)disp=td.sym;else if(factPower[s]){const pc=CH.find(c=>c.id===factPower[s]);if(pc)disp=pc.sym;}}
-      cell.textContent=disp;
+      // Use a text span so poison-fill div can coexist
+      const symSpan=document.createElement('span');symSpan.style.cssText='position:relative;z-index:2;';symSpan.textContent=disp;cell.appendChild(symSpan);
       // Poison overlay
       if(poison[i]>0){
         const pDiv=document.createElement('div');pDiv.className='poison-fill';cell.appendChild(pDiv);
@@ -1116,10 +1163,19 @@ const anims=[];
 let animFrame=null;
 
 function getCellCenter(idx){
-  const el=document.getElementById('board');
-  const cells=el.querySelectorAll('.cell');
-  const c=cells[idx];const cr=c.getBoundingClientRect(),br=el.getBoundingClientRect();
-  return{x:cr.left-br.left+cr.width/2,y:cr.top-br.top+cr.height/2,w:cr.width,h:cr.height};
+  // Canvas is positioned over board-wrap at (0,0).
+  // We need cell centers relative to board-wrap's top-left corner.
+  const boardWrap=document.querySelector('.board-wrap');
+  const boardEl=document.getElementById('board');
+  const cells=boardEl.querySelectorAll('.cell');
+  const c=cells[idx];
+  const cr=c.getBoundingClientRect();
+  const wr=boardWrap?boardWrap.getBoundingClientRect():boardEl.getBoundingClientRect();
+  return{
+    x:Math.round(cr.left-wr.left+cr.width/2),
+    y:Math.round(cr.top-wr.top+cr.height/2),
+    w:cr.width,h:cr.height
+  };
 }
 function runAnims(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -1144,25 +1200,25 @@ function ease(t){return t<.5?2*t*t:1-(2*(1-t))*(2*(1-t))*2/4+1;}// easeInOut app
 function playExpungerAnim(idx,s,done){
   renderBoard();
   const c=getCellCenter(idx);
-  const hs=c.w*.38;
+  const hs=c.w*.26; // shorter lines, stay inside tile
   addAnim(600,(ctx2,t)=>{
     ctx2.lineCap='round';
     const fade=t>.7?1-(t-.7)/.3:1;
-    // Slash 1 (top-right to bottom-left): t 0→0.4
+    // Slash 1 (top-right to bottom-left): t 0→0.35
     if(t<0.7){
       const p1=Math.min(1,t/0.35);
       const e1=ease(p1);
-      ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=5;
+      ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=7; // thicker
       ctx2.beginPath();
       ctx2.moveTo(c.x+hs,c.y-hs);
       ctx2.lineTo(c.x+hs-2*hs*e1,c.y-hs+2*hs*e1);
       ctx2.stroke();
     }
-    // Slash 2 (top-left to bottom-right): t 0.3→0.7
+    // Slash 2 (top-left to bottom-right): t 0.25→0.6
     if(t>0.25){
       const p2=Math.min(1,(t-0.25)/0.35);
       const e2=ease(p2);
-      ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=5;
+      ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=7;
       ctx2.beginPath();
       ctx2.moveTo(c.x-hs,c.y-hs);
       ctx2.lineTo(c.x-hs+2*hs*e2,c.y-hs+2*hs*e2);
@@ -1177,23 +1233,22 @@ function playOriginalAnim(srcIdx,destIdx,s,done){
   const src=getCellCenter(srcIdx);
   const dst=getCellCenter(destIdx);
   const sz=src.w;
+  // Midpoint: animation travels only from src to dst (exact, no overshoot)
   addAnim(550,(ctx2,t)=>{
     const e=ease(t);
-    // Draw a sliding tile block from src to dst
+    // Travel exactly from src to dst (half the apparent distance by using direct lerp)
     const px=src.x+(dst.x-src.x)*e;
     const py=src.y+(dst.y-src.y)*e;
-    const alpha=t<.8?0.85:0.85*(1-(t-.8)/.2);
-    const r=sz*.46;
-    // Blue rounded rect
-    ctx2.fillStyle=`rgba(29,95,170,${alpha*.35})`;
-    ctx2.strokeStyle=`rgba(26,95,168,${alpha*.9})`;
+    const alpha=t<.75?0.85:0.85*(1-(t-.75)/.25);
+    const r=sz*.40; // slightly smaller than cell
+    ctx2.fillStyle=`rgba(26,95,168,${alpha*.30})`;
+    ctx2.strokeStyle=`rgba(26,95,168,${alpha*.85})`;
     ctx2.lineWidth=2.5;
     ctx2.beginPath();
     if(ctx2.roundRect)ctx2.roundRect(px-r,py-r,r*2,r*2,6);else ctx2.arc(px,py,r,0,Math.PI*2);
     ctx2.fill();ctx2.stroke();
-    // O symbol inside
     ctx2.fillStyle=`rgba(26,95,168,${alpha})`;
-    ctx2.font=`${sz*.48}px 'DM Serif Display',serif`;
+    ctx2.font=`${sz*.45}px 'DM Serif Display',serif`;
     ctx2.textAlign='center';ctx2.textBaseline='middle';
     ctx2.fillText('O',px,py+2);
   },done);
@@ -1242,7 +1297,7 @@ function playMoleAnim(fromIdx,throughIdx,landIdx,isBlind=false){
         const cx2=from.x+(through.x-from.x)*cp;
         const cy2=from.y+(through.y-from.y)*cp;
         const ageFrac=Math.min(1,(p-cp)*numCirc);
-        const r=from.w*.13*(1-ageFrac*.6);
+        const r=from.w*.22*(1-ageFrac*.55);
         ctx2.fillStyle=`rgba(107,62,30,${0.75*(1-ageFrac*.7)})`;
         ctx2.beginPath();ctx2.arc(cx2,cy2,Math.max(1,r),0,Math.PI*2);ctx2.fill();
       }
@@ -1257,7 +1312,7 @@ function playMoleAnim(fromIdx,throughIdx,landIdx,isBlind=false){
         const cx2=through.x+(land.x-through.x)*cp;
         const cy2=through.y+(land.y-through.y)*cp;
         const ageFrac=Math.min(1,(p-cp)*numCirc);
-        const r=from.w*.13*(1-ageFrac*.6);
+        const r=from.w*.22*(1-ageFrac*.55);
         ctx2.fillStyle=`rgba(107,62,30,${0.75*(1-ageFrac*.7)})`;
         ctx2.beginPath();ctx2.arc(cx2,cy2,Math.max(1,r),0,Math.PI*2);ctx2.fill();
       }
@@ -1266,8 +1321,8 @@ function playMoleAnim(fromIdx,throughIdx,landIdx,isBlind=false){
         const bt=(t-.82)/.18;
         for(let k=0;k<8;k++){
           const a=k*(Math.PI*2/8);
-          const r2=land.w*.4*bt;
-          const pr=land.w*.11*(1-bt);
+          const r2=land.w*.55*bt;
+          const pr=land.w*.18*(1-bt);
           ctx2.fillStyle=`rgba(107,62,30,${.65*(1-bt)})`;
           ctx2.beginPath();ctx2.arc(land.x+Math.cos(a)*r2,land.y+Math.sin(a)*r2,Math.max(1,pr),0,Math.PI*2);ctx2.fill();
         }
@@ -1303,33 +1358,30 @@ function playSnakeAnim(placedIdx,prevIdx,snakeFrom,poisonedIdxs){
       // Bright center highlight
       ctx2.strokeStyle=`rgba(106,191,105,${alpha*.5})`;ctx2.lineWidth=placed.w*.07;ctx2.stroke();
     }
-    // Poison spread bars — from the direction snake came from
-    if(t>0.3&&poisonedIdxs.length){
-      const pt=Math.min(1,(t-0.3)/0.6);
+    // Poison: slow oozing mass leeching from snake tile onto adjacent tiles
+    if(t>0.4&&poisonedIdxs.length){
+      const pt=Math.min(1,(t-0.4)/0.85); // slower ooze
       poisonedIdxs.forEach(pi=>{
         const pc=getCellCenter(pi);
-        // Direction from snake to poisoned cell
         const dx=pc.x-placed.x,dy=pc.y-placed.y;
-        const len=Math.sqrt(dx*dx+dy*dy)||1;
-        const nx=dx/len,ny=dy/len;
-        // Bar sweeps from source side across cell
-        const barProg=ease(pt);
-        const barW=pc.w*.85;const barH=pc.h*.85;
-        const startX=pc.x-nx*barW*.5;const startY=pc.y-ny*barH*.5;
-        const alpha2=pt<.8?pt/.8:1-(pt-.8)/.2;
-        // Gradient bar
-        const grd=ctx2.createLinearGradient(startX,startY,startX+nx*barW*barProg,startY+ny*barH*barProg);
-        grd.addColorStop(0,`rgba(139,92,246,${alpha2*.6})`);
-        grd.addColorStop(1,`rgba(91,33,182,${alpha2*.3})`);
+        const dlen=Math.sqrt(dx*dx+dy*dy)||1;
+        const nx=dx/dlen,ny=dy/dlen;
+        // Ooze starts at the edge of the poisoned cell closest to snake
+        const oozeProgress=ease(pt);
+        const alpha2=pt<0.6?pt/0.6*0.5:0.5*(1-(pt-0.6)/0.4);
+        // Draw an amorphous blob that grows from one side
+        const blobR=pc.w*.22*oozeProgress; // max radius ~22% of cell
+        const entryX=pc.x-nx*pc.w*.38; // entry point from snake side
+        const entryY=pc.y-ny*pc.h*.38;
+        // Blob center moves inward as it grows
+        const blobX=entryX+nx*pc.w*.22*oozeProgress;
+        const blobY=entryY+ny*pc.h*.22*oozeProgress;
+        const grd=ctx2.createRadialGradient(blobX,blobY,0,blobX,blobY,blobR*1.5);
+        grd.addColorStop(0,`rgba(124,58,237,${alpha2*.9})`);
+        grd.addColorStop(0.6,`rgba(109,40,217,${alpha2*.6})`);
+        grd.addColorStop(1,`rgba(91,33,182,0)`);
         ctx2.fillStyle=grd;
-        // Draw a rectangle oriented in the sweep direction
-        const perp2={x:-ny,y:nx};const hw=placed.w*.35;
-        ctx2.beginPath();
-        ctx2.moveTo(startX-perp2.x*hw,startY-perp2.y*hw);
-        ctx2.lineTo(startX+perp2.x*hw,startY+perp2.y*hw);
-        ctx2.lineTo(startX+nx*barW*barProg+perp2.x*hw,startY+ny*barH*barProg+perp2.y*hw);
-        ctx2.lineTo(startX+nx*barW*barProg-perp2.x*hw,startY+ny*barH*barProg-perp2.y*hw);
-        ctx2.closePath();ctx2.fill();
+        ctx2.beginPath();ctx2.arc(blobX,blobY,blobR*1.5,0,Math.PI*2);ctx2.fill();
       });
     }
   });
@@ -1377,7 +1429,7 @@ function smart(b,v,ov,pool){if(!pool.length)return null;for(const i of pool)if(c
 function botPlace(s){
   const v=sym(s),ov=sym(1-s),co=cancelledOut(s),eid=effId(s);
   let pool=rch(s).id==='mole'?moleValidPlacements(s):empt(board);
-  if(!pool.length)return null;
+  if(!pool.length)return null; // mole with no moves returns null → auto-skip in advanceTurn
   for(const i of pool)if(cwn(board,v,i))return i;
   for(const i of pool)if(cwn(board,ov,i))return i;
   if(pTurnCnt[s]===0&&diff!=='hard'){const mid=[5,6,9,10],me=mid.filter(i=>board[i]===null&&pool.includes(i));if(me.length&&Math.random()<.6)return rnd(me);return rnd(pool);}
@@ -1434,35 +1486,48 @@ function doBot(){
   const el=document.getElementById('ambient');
   const chars=['X','O','S','F','M','Q'];
   const themes=[{fg:'var(--r)',bg:'var(--r-l)',bd:'var(--r-m)'},{fg:'var(--b)',bg:'var(--b-l)',bd:'var(--b-m)'},{fg:'var(--g)',bg:'var(--g-l)',bd:'var(--g-m)'},{fg:'var(--o)',bg:'var(--o-l)',bd:'var(--o-m)'},{fg:'var(--w)',bg:'var(--w-l)',bd:'var(--w-m)'},{fg:'var(--y)',bg:'var(--y-l)',bd:'var(--y-m)'}];
-  const COUNT=55,tiles=[];
+  const COUNT=55;const tiles=[];
   function makeTile(){
     const ci=Math.floor(Math.random()*chars.length),t=themes[ci];
     const d=document.createElement('div');d.className='amb';d.textContent=chars[ci];
     d.style.color=t.fg;d.style.background=t.bg;d.style.border='1.5px solid '+t.bd;
-    d.style.fontSize=(Math.random()<0.25?'2.6rem':(Math.random()<0.5?'1.8rem':'2.1rem'));
-    const side=Math.random()<0.5?66:72;d.style.width=side+'px';d.style.height=side+'px';
+    d.style.fontSize=(Math.random()<.25?'2.6rem':(Math.random()<.5?'1.8rem':'2.1rem'));
+    const side=Math.random()<.5?66:72;d.style.width=side+'px';d.style.height=side+'px';
     el.appendChild(d);return d;
   }
   function placeTile(d){
     const vw=window.innerWidth,vh=window.innerHeight;
-    const x=Math.random()*vw-36;
-    const bias=Math.random();
-    const sy=bias<0.55?(-70-Math.random()*0.5*vh):bias<0.85?(-36-Math.random()*0.1*vh):(Math.random()*0.25*vh-36);
-    const rot=(Math.random()-.5)*36,spin=(Math.random()-.5)*18;
-    const dur=18+Math.random()*22;const del=-(Math.random()*dur);
-    const pk=0.09+Math.random()*0.13;
+    const sz=parseInt(d.style.width)||70;
+    // Random X across full width
+    const x=Math.random()*vw;
+    // Random starting Y: tile is placed at this top value, starts just above (--sy=-sz)
+    // so it appears to fall from just above its starting position
+    const topY=Math.random()*vh; // anywhere on screen
+    const dur=24+Math.random()*16; // 24-40s fall
+    // Negative delay places tile at a random point in its animation
+    const del=-(Math.random()*dur);
+    const rot=(Math.random()-.5)*38,spin=(Math.random()-.5)*18;
+    const pk=.07+Math.random()*.11;
     d.style.left=Math.round(x)+'px';
-    d.style.setProperty('--sy',Math.round(sy)+'px');
+    d.style.top=Math.round(topY)+'px';
+    // --sy offsets from the top position — set to -sz so tile starts just above topY
+    d.style.setProperty('--sy',(-sz-10)+'px');
     d.style.setProperty('--rot',rot+'deg');
     d.style.setProperty('--spin',spin+'deg');
     d.style.setProperty('--pk',pk);
-    d.style.animationName='ambfall';d.style.animationDuration=dur+'s';
-    d.style.animationDelay=del+'s';d.style.animationTimingFunction='linear';
+    d.style.animationName='ambfall';
+    d.style.animationDuration=dur+'s';
+    d.style.animationDelay=del+'s';
+    d.style.animationTimingFunction='linear';
     d.style.animationIterationCount='infinite';
-    d.style.zIndex=pk<0.11?0:pk<0.16?1:2;
+    d.style.zIndex=Math.floor(pk*15);
   }
   for(let k=0;k<COUNT;k++){const d=makeTile();placeTile(d);tiles.push(d);}
-  setInterval(()=>placeTile(tiles[Math.floor(Math.random()*tiles.length)]),5000);
+  // Periodically reposition a tile to maintain variety
+  setInterval(()=>{
+    const d=tiles[Math.floor(Math.random()*tiles.length)];
+    placeTile(d);
+  },4000);
 })();
 
 buildBoardEl();
