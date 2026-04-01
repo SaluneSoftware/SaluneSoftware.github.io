@@ -590,28 +590,52 @@ function qIsPlayer(slot){
   return rch(slot).id==='quantum'||(rch(slot).id==='factotum'&&effId(slot)==='quantum');
 }
 
-// Build ghost map: all empty cells in row+col of any non-perceived Q tile
+// Build ghost map:
+// - Most recent DIRECTLY-placed Q tile per slot: projects full row+col
+// - Spawned tiles (isSpawned=true): project only adjacent empty cells (dist=1)
 // Returns: { boardIdx: {slot, sourceIdx, dist} }
 function buildQuantumGhosts(){
   const map={};
+  // Find most recent directly-placed tile per slot
+  const latestDirect={}; // slot → {idx, qTurn}
+  Object.entries(qState).forEach(([idxStr,st])=>{
+    if(st.perceived||st.isSpawned)return;
+    const qi=parseInt(idxStr);
+    if(board[qi]===null){delete qState[qi];return;}
+    if(!latestDirect[st.slot]||st.qTurn>latestDirect[st.slot].qTurn)
+      latestDirect[st.slot]={idx:qi,qTurn:st.qTurn};
+  });
+
+  // Process all non-perceived tiles
   Object.entries(qState).forEach(([idxStr,st])=>{
     if(st.perceived)return;
+    if(cancelledOut(st.slot))return;
     const qi=parseInt(idxStr);
     if(board[qi]===null){delete qState[qi];return;}
     const qr=Math.floor(qi/N),qc=qi%N;
-    // Row
-    for(let cc=0;cc<N;cc++){
-      const j=qr*N+cc;
-      if(j===qi||board[j]!==null)continue;
-      const d=Math.abs(cc-qc);
-      if(!map[j]||d<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:d};
-    }
-    // Column
-    for(let rr=0;rr<N;rr++){
-      const j=rr*N+qc;
-      if(j===qi||board[j]!==null)continue;
-      const d=Math.abs(rr-qr);
-      if(!map[j]||d<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:d};
+    const isDirect=!st.isSpawned;
+    const isLatest=latestDirect[st.slot]?.idx===qi;
+
+    if(isDirect&&!isLatest)return; // only latest direct tile projects full row/col
+
+    if(isDirect){
+      // Latest direct tile: full row + col projection
+      for(let cc=0;cc<N;cc++){
+        const j=qr*N+cc;if(j===qi||board[j]!==null)continue;
+        const d=Math.abs(cc-qc);
+        if(!map[j]||d<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:d};
+      }
+      for(let rr=0;rr<N;rr++){
+        const j=rr*N+qc;if(j===qi||board[j]!==null)continue;
+        const d=Math.abs(rr-qr);
+        if(!map[j]||d<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:d};
+      }
+    } else {
+      // Spawned tile: project only immediate adjacent empty cells (dist=1)
+      adjO(qi).forEach(j=>{
+        if(board[j]!==null)return;
+        if(!map[j]||1<map[j].dist)map[j]={slot:st.slot,sourceIdx:qi,dist:1};
+      });
     }
   });
   return map;
@@ -634,7 +658,7 @@ function teleportQTile(qi,slot){
   if(factTileData[qi]){factTileData[dest]=factTileData[qi];delete factTileData[qi];}
   delete qState[qi];
   board[dest]=v;
-  qState[dest]={slot,qTurn:qPlayerTurn[slot],perceived:false};
+  qState[dest]={slot,qTurn:qPlayerTurn[slot],perceived:false,isSpawned:false};
   playQAnim(dest);
 }
 
@@ -666,11 +690,11 @@ function matureQuantumTiles(slot){
   
   toMature.forEach(qi=>{
     if(board[qi]===null){delete qState[qi];return;}
-    // Spawn real Q tiles in empty ortho neighbors
+    // Spawn real Q tiles in empty ortho neighbors (marked as spawned)
     adjO(qi).forEach(j=>{
       if(board[j]===null){
         board[j]=v;
-        qState[j]={slot,qTurn:curTurn,perceived:false};
+        qState[j]={slot,qTurn:curTurn,perceived:false,isSpawned:true};
       }
     });
     // Remove the source tile
@@ -895,7 +919,7 @@ function doPlace(i,s,isBonus){
   if(isQ){
     // Placing Q on an own ghost: the source tile keeps projecting (no special action)
     // Just register this new tile
-    qState[i]={slot:s,qTurn:qPlayerTurn[s],perceived:false};
+    qState[i]={slot:s,qTurn:qPlayerTurn[s],perceived:false,isSpawned:false};
     playQAnim(i);
   }
 
@@ -1040,6 +1064,7 @@ function handleClick(i){
     const s=bonusSlot,v=sym(s),eid=effId(s);
     board[i]=v;lastP[s]=i;
     if(eid==='snake'||(rch(s).id==='factotum'&&factPower[s]==='snake'))venomBloom(i,s);
+    checkQuantumTeleportByAny(s,i);
     const win=chkWin(s);if(win){renderBoard();markWin(win);endGame(s);return;}
     if(chkDraw()){renderBoard();endGame(-1);return;}
     bonusSlot=-1;fruit[i]=0;
@@ -1115,9 +1140,10 @@ function renderBoard(){
     if(board[i]!==null){
       const s=symSlot(board[i]);
       if(s>=0)cell.classList.add('taken',prop(s,'pc'));
-      let disp=board[i].toUpperCase();
+      // Preserve case: P2 in nemesis uses lowercase sym, P1/solo uses uppercase
+      let disp=board[i]; // already correct case from sym() function
+      // Factotum: override with historical symbol (always uppercase power symbol)
       if(s>=0&&rch(s).id==='factotum'){const td=factTileData[i];if(td)disp=td.sym;else if(factPower[s]){const pc=CH.find(c=>c.id===factPower[s]);if(pc)disp=pc.sym;}}
-      // Use a text span so poison-fill div can coexist
       const symSpan=document.createElement('span');symSpan.style.cssText='position:relative;z-index:2;';symSpan.textContent=disp;cell.appendChild(symSpan);
       // Poison overlay
       if(poison[i]>0){
@@ -1200,28 +1226,37 @@ function ease(t){return t<.5?2*t*t:1-(2*(1-t))*(2*(1-t))*2/4+1;}// easeInOut app
 function playExpungerAnim(idx,s,done){
   renderBoard();
   const c=getCellCenter(idx);
-  const hs=c.w*.26; // shorter lines, stay inside tile
+  // Half-arm length: stays well inside the tile
+  const hs=c.w*.28;
+  // X is centered exactly on c.x, c.y
+  // Slash 1: from (cx+hs, cy-hs) → (cx-hs, cy+hs)  [top-right to bottom-left]
+  // Slash 2: from (cx-hs, cy-hs) → (cx+hs, cy+hs)  [top-left to bottom-right]
   addAnim(600,(ctx2,t)=>{
     ctx2.lineCap='round';
-    const fade=t>.7?1-(t-.7)/.3:1;
-    // Slash 1 (top-right to bottom-left): t 0→0.35
+    const fade=t>.68?1-(t-.68)/.32:1;
+    // Slash 1 draws first (t: 0 → 0.38)
     if(t<0.7){
-      const p1=Math.min(1,t/0.35);
+      const p1=Math.min(1,t/0.38);
       const e1=ease(p1);
-      ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=7; // thicker
-      ctx2.beginPath();
-      ctx2.moveTo(c.x+hs,c.y-hs);
-      ctx2.lineTo(c.x+hs-2*hs*e1,c.y-hs+2*hs*e1);
-      ctx2.stroke();
-    }
-    // Slash 2 (top-left to bottom-right): t 0.25→0.6
-    if(t>0.25){
-      const p2=Math.min(1,(t-0.25)/0.35);
-      const e2=ease(p2);
+      // Start: top-right corner, end: bottom-left corner (both centered on tile)
+      const x0=c.x+hs,y0=c.y-hs;
+      const x1=c.x-hs,y1=c.y+hs;
       ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=7;
       ctx2.beginPath();
-      ctx2.moveTo(c.x-hs,c.y-hs);
-      ctx2.lineTo(c.x-hs+2*hs*e2,c.y-hs+2*hs*e2);
+      ctx2.moveTo(x0,y0);
+      ctx2.lineTo(x0+(x1-x0)*e1,y0+(y1-y0)*e1);
+      ctx2.stroke();
+    }
+    // Slash 2 draws second (t: 0.28 → 0.66)
+    if(t>0.28){
+      const p2=Math.min(1,(t-0.28)/0.38);
+      const e2=ease(p2);
+      const x0=c.x-hs,y0=c.y-hs;
+      const x1=c.x+hs,y1=c.y+hs;
+      ctx2.strokeStyle=`rgba(192,57,43,${fade*.95})`;ctx2.lineWidth=7;
+      ctx2.beginPath();
+      ctx2.moveTo(x0,y0);
+      ctx2.lineTo(x0+(x1-x0)*e2,y0+(y1-y0)*e2);
       ctx2.stroke();
     }
   },done);
@@ -1233,12 +1268,13 @@ function playOriginalAnim(srcIdx,destIdx,s,done){
   const src=getCellCenter(srcIdx);
   const dst=getCellCenter(destIdx);
   const sz=src.w;
-  // Midpoint: animation travels only from src to dst (exact, no overshoot)
+  // Travel only HALFWAY between src and dst (user says animation goes double)
+  const endX=src.x+(dst.x-src.x)*0.5;
+  const endY=src.y+(dst.y-src.y)*0.5;
   addAnim(550,(ctx2,t)=>{
     const e=ease(t);
-    // Travel exactly from src to dst (half the apparent distance by using direct lerp)
-    const px=src.x+(dst.x-src.x)*e;
-    const py=src.y+(dst.y-src.y)*e;
+    const px=src.x+(endX-src.x)*e;
+    const py=src.y+(endY-src.y)*e;
     const alpha=t<.75?0.85:0.85*(1-(t-.75)/.25);
     const r=sz*.40; // slightly smaller than cell
     ctx2.fillStyle=`rgba(26,95,168,${alpha*.30})`;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -767,22 +767,59 @@
   </footer>
 
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+    /* ── Konami Code → T3: Rivals ── */
+    (function(){
+      const SEQ=['ArrowUp','ArrowUp','ArrowDown','ArrowDown',
+                 'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight',
+                 'a','b','Enter'];
+      let pos=0;
+      document.addEventListener('keydown',function(e){
+        const key=e.key;
+        // case-insensitive for A and B
+        const expected=SEQ[pos];
+        const match=(key===expected)||(key.toLowerCase()===expected.toLowerCase());
+        if(match){
+          pos++;
+          if(pos===SEQ.length){
+            pos=0;
+            // Flash brief overlay then navigate
+            const flash=document.createElement('div');
+            flash.style.cssText='position:fixed;inset:0;background:#000;opacity:0;z-index:9999;transition:opacity .3s;pointer-events:none;display:flex;align-items:center;justify-content:center;';
+            flash.innerHTML='<div style="color:#fff;font-family:monospace;font-size:2rem;letter-spacing:.2em;opacity:0;transition:opacity .3s .15s">RIVALS</div>';
+            document.body.appendChild(flash);
+            requestAnimationFrame(()=>{
+              flash.style.opacity='1';
+              flash.firstChild.style.opacity='1';
+            });
+            setTimeout(()=>window.location.href='/rivals/',700);
+          }
+        } else {
+          pos=0;
+          // Check if this key starts a new sequence
+          if(key===SEQ[0])pos=1;
+        }
+      });
+    })();
+</script><script>
 
     /* ── Scroll to top on every load ── */
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
 
-    /* ── Theme: time-based default, user preference saved ── */
-    const html      = document.documentElement;
-    const toggleBtn = document.getElementById('theme-toggle');
-
-    // Simple theme toggle — default light, no geolocation
-    const savedTheme = localStorage.getItem('rivalsTheme');
-    html.dataset.theme = savedTheme || 'light';
-    toggleBtn.addEventListener('click', () => {
-      html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('rivalsTheme', html.dataset.theme);
+    /* ── Theme toggle: simple light/dark, no geolocation ── */
+    const html = document.documentElement;
+    // Apply saved theme or default to light
+    (function(){
+      const saved = localStorage.getItem('rivalsTheme');
+      if(saved) html.dataset.theme = saved;
+      else html.dataset.theme = 'light';
+    })();
+    // Wire the button
+    document.getElementById('theme-toggle').addEventListener('click', function(){
+      const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+      html.dataset.theme = next;
+      localStorage.setItem('rivalsTheme', next);
     });
 
     /* ── Waveform bars ── */
