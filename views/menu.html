@@ -1,0 +1,161 @@
+<div class="main-menu">
+  <div class="top-section">
+    <div class="channels">
+
+      <!-- ── COL 1 ── -->
+      <div class="col first">
+
+        <!-- Channel 1: Demo Reel (YouTube) -->
+        <!-- TO ADD YOUR IMAGE: replace data-img with path to your thumbnail, e.g. assets/images/demo-reel-thumb.jpg -->
+        <!-- TO ADD YOUR VIDEO: replace data-url with your YouTube embed URL, e.g. https://www.youtube.com/embed/VIDEO_ID -->
+        <div class="channel-icon occupied">
+          <img src="assets/images/miichannel.jpg">
+          <div class="hover" id="1"
+            onmouseover="hover()"
+            onclick="selectChannel(this)"
+            data-img="assets/images/miichannel.jpg"
+            data-title="2026 Sound Design Reel"
+            data-action="youtube"
+            data-url="https://www.youtube.com/embed/?listType=user_uploads&list=Salune&rel=0">
+          </div>
+        </div>
+
+        <!-- Channel 2: For My Love album (YouTube) -->
+        <div class="channel-icon occupied">
+          <img src="assets/images/miichannel.jpg">
+          <div class="hover" id="2"
+            onmouseover="hover()"
+            onclick="selectChannel(this)"
+            data-img="assets/images/miichannel.jpg"
+            data-title="For My Love — Album"
+            data-action="youtube"
+            data-url="https://www.youtube.com/embed/?listType=user_uploads&list=Salune&rel=0">
+          </div>
+        </div>
+
+        <div class="channel-icon blank"><div class="hover" id="3"></div></div>
+      </div>
+
+      <!-- ── COL 2 ── -->
+      <div class="col">
+
+        <!-- Channel 4: Retro Repair game scoring (YouTube) -->
+        <div class="channel-icon occupied">
+          <img src="assets/images/miichannel.jpg">
+          <div class="hover" id="4"
+            onmouseover="hover()"
+            onclick="selectChannel(this)"
+            data-img="assets/images/miichannel.jpg"
+            data-title="Retro Repair — Game Score"
+            data-action="youtube"
+            data-url="https://www.youtube.com/embed/?listType=user_uploads&list=Salune&rel=0">
+          </div>
+        </div>
+
+        <!-- Channel 5: T3 Rivals minigame (route) -->
+        <div class="channel-icon occupied">
+          <img src="assets/images/miichannel.jpg">
+          <div class="hover" id="5"
+            onmouseover="hover()"
+            onclick="selectChannel(this)"
+            data-img="assets/images/miichannel.jpg"
+            data-title="T3: Rivals"
+            data-action="route"
+            data-url="/rivals/">
+          </div>
+        </div>
+
+        <div class="channel-icon blank"><div class="hover" id="6"></div></div>
+      </div>
+
+      <!-- ── COL 3 ── -->
+      <div class="col">
+
+        <!-- Channel 7: Last of Us sound rework (YouTube) -->
+        <div class="channel-icon occupied">
+          <img src="assets/images/miichannel.jpg">
+          <div class="hover" id="7"
+            onmouseover="hover()"
+            onclick="selectChannel(this)"
+            data-img="assets/images/miichannel.jpg"
+            data-title="The Last of Us — Sound Rework"
+            data-action="youtube"
+            data-url="https://www.youtube.com/embed/?listType=user_uploads&list=Salune&rel=0">
+          </div>
+        </div>
+
+        <div class="channel-icon blank"><div class="hover" id="8"></div></div>
+        <div class="channel-icon blank"><div class="hover" id="9"></div></div>
+      </div>
+
+      <!-- ── COL 4 ── -->
+      <div class="col">
+
+        <!-- Channel 10: Armored Core Ice Worm rework (YouTube) -->
+        <div class="channel-icon occupied">
+          <img src="assets/images/miichannel.jpg">
+          <div class="hover" id="10"
+            onmouseover="hover()"
+            onclick="selectChannel(this)"
+            data-img="assets/images/miichannel.jpg"
+            data-title="Armored Core — Ice Worm Rework"
+            data-action="youtube"
+            data-url="https://www.youtube.com/embed/?listType=user_uploads&list=Salune&rel=0">
+          </div>
+        </div>
+
+        <div class="channel-icon blank"><div class="hover" id="11"></div></div>
+        <div class="channel-icon blank"><div class="hover" id="12"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-section">
+    <div class="bottom-title"></div>
+
+    <div class="left-button-container">
+      <div class="left-button"></div>
+      <div class="wii-button corner-button viewchange" onmouseover="hover()" data-view="settings-main" data-transition="fade"></div>
+    </div>
+
+    <div class="date"></div>
+
+    <div class="right-button-container">
+      <div class="right-button"></div>
+      <div class="mail-button corner-button" onmouseover="hover()"></div>
+    </div>
+  </div>
+</div>
+
+<div class="splash-screen">
+  <!-- Channel title shown in splash -->
+  <div class="splash-title"></div>
+</div>
+
+<div class="splash-bar">
+  <div class="splash-buttons">
+    <a href="javascript:void(0)" class="btn menu-btn" onmouseover="hover()" onclick="backToMenu()">Wii Menu</a>
+    <a href="javascript:void(0)" class="btn start-btn" onmouseover="hover()" onclick="startChannel()">Start</a>
+  </div>
+</div>
+
+<!-- Video modal overlay — hidden until Start is clicked on a youtube channel -->
+<div class="video-modal" id="videoModal">
+  <div class="video-modal-inner">
+    <button class="video-modal-close" onclick="closeVideoModal()">✕ Close</button>
+    <iframe id="videoFrame" src="" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
+
+<div class="border-topleft border"></div>
+<div class="border-topright border"></div>
+<div class="border-bottomleft border"></div>
+<div class="border-bottomright border"></div>
+
+<div class="screen-message">
+  <p>It has been detected that your screen resolution may not be compatible with this project. This project is very experiental and as a result, does not scale to some smaller screens. If you're alright with the layout looking a little off, click anywhere to close this message.</p>
+</div>

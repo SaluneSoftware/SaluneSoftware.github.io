@@ -1,0 +1,39 @@
+/* universal styling */
+
+.app {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  display: block;
+}
+
+body, html {
+  margin: 0;
+  overflow: hidden;
+  background-color: black;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body {
+  transition: 900ms;
+  cursor: url(../images/cursor.png), auto;
+}
+
+.black {
+  background-color: black;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999999;
+  top: 100vh;
+  opacity: 0;
+  transition: opacity 300ms;
+  position: absolute;
+}
+
+.black.animate {
+  opacity: 1;
+}
