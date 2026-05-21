@@ -2,37 +2,29 @@
   <div class="top-section">
     <div class="channels">
 
-      
+      <!-- ── COL 1 ── -->
       <div class="col first">
 
-        
+        <!-- Ch 1: Sound Design Reel — replace data-gif with your actual GIF path -->
         <div class="channel-icon occupied">
-          <img src="assets/images/miichannel.jpg">
+          <img class="channel-gif" src="assets/images/miichannel.jpg"
+               data-gif="assets/images/miichannel.jpg">
           <div class="hover" id="1"
-            onmouseover="hover()"
+            onmouseover="channelHoverIn(this)" onmouseleave="channelHoverOut(this)"
             onclick="selectChannel(this)"
             data-img="assets/images/miichannel.jpg"
             data-title="2026 Sound Design Reel"
-            <iframe
-              width="560" 
-              height="315" 
-              src="about:blank"  
-              data-action="youtube"
-              data-url="https://www.youtube.com/embed/BrXUU7wM0ow?si=LN0qXVG2sg8yDBxy"
-              title="YouTube video player" 
-              frameborder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-              referrerpolicy="strict-origin-when-cross-origin" 
-              allowfullscreen>
-            </iframe>
+            data-action="youtube"
+            data-url="https://www.youtube.com/embed/BrXUU7wM0ow?si=LN0qXVG2sg8yDBxy">
           </div>
         </div>
 
-        
+        <!-- Ch 2: For My Love -->
         <div class="channel-icon occupied">
-          <img src="assets/images/miichannel.jpg">
+          <img class="channel-gif" src="assets/images/miichannel.jpg"
+               data-gif="assets/images/miichannel.jpg">
           <div class="hover" id="2"
-            onmouseover="hover()"
+            onmouseover="channelHoverIn(this)" onmouseleave="channelHoverOut(this)"
             onclick="selectChannel(this)"
             data-img="assets/images/miichannel.jpg"
             data-title="For My Love — Album"
@@ -44,14 +36,15 @@
         <div class="channel-icon blank"><div class="hover" id="3"></div></div>
       </div>
 
-      
+      <!-- ── COL 2 ── -->
       <div class="col">
 
-        
+        <!-- Ch 4: Retro Repair -->
         <div class="channel-icon occupied">
-          <img src="assets/images/miichannel.jpg">
+          <img class="channel-gif" src="assets/images/miichannel.jpg"
+               data-gif="assets/images/miichannel.jpg">
           <div class="hover" id="4"
-            onmouseover="hover()"
+            onmouseover="channelHoverIn(this)" onmouseleave="channelHoverOut(this)"
             onclick="selectChannel(this)"
             data-img="assets/images/miichannel.jpg"
             data-title="Retro Repair — Game Score"
@@ -60,11 +53,12 @@
           </div>
         </div>
 
-     
+        <!-- Ch 5: T3 Rivals -->
         <div class="channel-icon occupied">
-          <img src="assets/images/miichannel.jpg">
+          <img class="channel-gif" src="assets/images/miichannel.jpg"
+               data-gif="assets/images/miichannel.jpg">
           <div class="hover" id="5"
-            onmouseover="hover()"
+            onmouseover="channelHoverIn(this)" onmouseleave="channelHoverOut(this)"
             onclick="selectChannel(this)"
             data-img="assets/images/miichannel.jpg"
             data-title="T3: Rivals"
@@ -76,14 +70,15 @@
         <div class="channel-icon blank"><div class="hover" id="6"></div></div>
       </div>
 
-      
+      <!-- ── COL 3 ── -->
       <div class="col">
 
-        
+        <!-- Ch 7: Last of Us Rework -->
         <div class="channel-icon occupied">
-          <img src="assets/images/miichannel.jpg">
+          <img class="channel-gif" src="assets/images/miichannel.jpg"
+               data-gif="assets/images/miichannel.jpg">
           <div class="hover" id="7"
-            onmouseover="hover()"
+            onmouseover="channelHoverIn(this)" onmouseleave="channelHoverOut(this)"
             onclick="selectChannel(this)"
             data-img="assets/images/miichannel.jpg"
             data-title="The Last of Us — Sound Rework"
@@ -96,14 +91,15 @@
         <div class="channel-icon blank"><div class="hover" id="9"></div></div>
       </div>
 
-      
+      <!-- ── COL 4 ── -->
       <div class="col">
 
-        
+        <!-- Ch 10: Armored Core Rework -->
         <div class="channel-icon occupied">
-          <img src="assets/images/miichannel.jpg">
+          <img class="channel-gif" src="assets/images/miichannel.jpg"
+               data-gif="assets/images/miichannel.jpg">
           <div class="hover" id="10"
-            onmouseover="hover()"
+            onmouseover="channelHoverIn(this)" onmouseleave="channelHoverOut(this)"
             onclick="selectChannel(this)"
             data-img="assets/images/miichannel.jpg"
             data-title="Armored Core — Ice Worm Rework"
@@ -124,31 +120,42 @@
 
     <div class="left-button-container">
       <div class="left-button"></div>
-      <div class="wii-button corner-button viewchange" onmouseover="hover()" data-view="settings-main" data-transition="fade"></div>
+      <div class="salune-button corner-button viewchange"
+           onmouseover="hover()" onclick="bottomBtn()"
+           data-view="settings-main" data-transition="fade"></div>
     </div>
 
     <div class="date"></div>
 
     <div class="right-button-container">
       <div class="right-button"></div>
-      <div class="mail-button corner-button" onmouseover="hover()"></div>
+      <div class="mail-button corner-button"
+           onmouseover="hover()" onclick="bottomBtn()"></div>
     </div>
   </div>
 </div>
 
+<!-- Splash: channel art + title -->
 <div class="splash-screen">
-  
   <div class="splash-title"></div>
 </div>
 
+<!-- Splash bar: Salune Menu / Start -->
 <div class="splash-bar">
   <div class="splash-buttons">
-    <a href="javascript:void(0)" class="btn menu-btn" onmouseover="hover()" onclick="backToMenu()">Wii Menu</a>
-    <a href="javascript:void(0)" class="btn start-btn" onmouseover="hover()" onclick="startChannel()">Start</a>
+    <a href="javascript:void(0)" class="btn menu-btn"
+       onmouseover="hover()" onclick="backToMenu()">Salune Menu</a>
+    <a href="javascript:void(0)" class="btn start-btn"
+       onmouseover="hover()" onclick="startChannel()">Start</a>
   </div>
 </div>
 
+<!-- Warning overlay: fade black → image → black → action -->
+<div class="warning-overlay" id="warningOverlay">
+  <img src="assets/images/WiiRemoteWarning.png" class="warning-img" id="warningImg" alt="Safety Warning">
+</div>
 
+<!-- Video modal -->
 <div class="video-modal" id="videoModal">
   <div class="video-modal-inner">
     <button class="video-modal-close" onclick="closeVideoModal()">✕ Close</button>
@@ -163,7 +170,3 @@
 <div class="border-topright border"></div>
 <div class="border-bottomleft border"></div>
 <div class="border-bottomright border"></div>
-
-<div class="screen-message">
-  <p>It has been detected that your screen resolution may not be compatible with this project. This project is very experiental and as a result, does not scale to some smaller screens. If you're alright with the layout looking a little off, click anywhere to close this message.</p>
-</div>

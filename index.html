@@ -20,13 +20,23 @@
     <div class="black"></div>
 
     <div class="sfx">
-      
-      <audio id="startup" src="assets/audio/startup.mp3" controls></audio>
-      <audio id="bg-music" src="assets/audio/bg-music.mp3" loop controls></audio>
-      <audio id="hover" src="assets/audio/button-hover.mp3"></audio>
-      <audio id="select" src="assets/audio/button-select.mp3"></audio>
-      <audio id="zip" src="assets/audio/zip.mp3"></audio>
-      <audio id="back" src="assets/audio/back.mp3"></audio>
+      <!--
+        Autoplay trick: the hidden iframe loads bgmusic.html which has
+        autoplay on the audio tags — this bypasses browser autoplay policy
+        because iframes with allow="autoplay" can play audio after a
+        user gesture on the parent page (or sometimes immediately).
+        The main audio elements below are the "real" ones used by JS.
+      -->
+      <iframe src="assets/audio/bgmusic.html" allow="autoplay"
+              style="display:none" id="bgmusic-iframe"></iframe>
+
+      <audio id="startup"   src="assets/audio/startup.mp3"   preload="auto"></audio>
+      <audio id="bg-music"  src="assets/audio/bg-music.mp3"  loop preload="auto"></audio>
+      <audio id="hover"     src="assets/audio/button-hover.mp3"  preload="auto"></audio>
+      <audio id="select"    src="assets/audio/button-select.mp3" preload="auto"></audio>
+      <audio id="zip"       src="assets/audio/zip.mp3"        preload="auto"></audio>
+      <audio id="back"      src="assets/audio/back.mp3"       preload="auto"></audio>
+      <audio id="bottomBtn" src="assets/audio/bottom-btn.mp3" preload="auto"></audio>
     </div>
   </body>
 </html>

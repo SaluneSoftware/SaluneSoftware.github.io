@@ -1,3 +1,7 @@
+// ══════════════════════════════════════════════════════
+//  Salune — main.js
+// ══════════════════════════════════════════════════════
+
 // ── delay utility ──
 var delay = (function() {
   var timer = 0;
@@ -7,125 +11,301 @@ var delay = (function() {
   };
 })();
 
-// ── UI audio ──
-function hover() {
-  document.getElementById("hover").play();
-}
-function select() {
-  document.getElementById("select").play();
-}
-function zip() {
-  document.getElementById("zip").play();
-  select();
-  document.getElementById("bg-music").pause();
-}
-function back() {
-  document.getElementById("back").play();
-}
+// ══════════════════════════════════════════════════════
+//  ROBUST AUDIO SYSTEM
+//  Pre-loads all clips into AudioBuffers via Web Audio API.
+//  Falls back to HTMLAudioElement if Web Audio is unavailable.
+// ══════════════════════════════════════════════════════
 
-// ── Active channel state ──
-// Stores the data attributes of whichever channel was last clicked
-var activeChannel = {
-  action: null,   // "youtube" or "route"
-  url: null,      // embed URL or page path
-  title: null
+var AudioCtx = window.AudioContext || window.webkitAudioContext;
+var audioCtx = null;
+var audioBuffers = {};
+var audioUnlocked = false;
+
+var SOUNDS = {
+  hover:      'assets/audio/button-hover.mp3',
+  select:     'assets/audio/button-select.mp3',
+  zip:        'assets/audio/zip.mp3',
+  back:       'assets/audio/back.mp3',
+  startup:    'assets/audio/startup.mp3',
+  bottomBtn:  'assets/audio/bottom-btn.mp3'
 };
 
-// ── Called when a channel icon is clicked ──
-function selectChannel(el) {
-  zip(); // plays zip + select sounds, pauses music
-
-  var img    = el.getAttribute("data-img");
-  var action = el.getAttribute("data-action");
-  var url    = el.getAttribute("data-url");
-  var title  = el.getAttribute("data-title") || "";
-
-  // Store for Start button
-  activeChannel.action = action;
-  activeChannel.url    = url;
-  activeChannel.title  = title;
-
-  // Animate menu zoom-out + splash screen zoom-in (original behaviour)
-  var centerX = $(el).offset().left + $(el).width() / 2;
-  var centerY = $(el).offset().top  + $(el).height() / 2;
-  $(".main-menu").css({ "transform-origin": centerX + "px " + centerY + "px 0px" });
-  $(".splash-screen").css({
-    "background-image": "url(" + img + ")",
-    "transform-origin": centerX + "px " + centerY + "px 0px"
-  });
-
-  // Show channel title inside splash
-  $(".splash-title").text(title);
-
-  $(".main-menu").addClass("channel-splash");
-  $("body").addClass("channel-splash");
-  delay(function() {
-    $("body").removeClass("splash-switch");
-  }, 900);
+function initAudioCtx() {
+  if (audioCtx) return;
+  try { audioCtx = new AudioCtx(); } catch(e) {}
 }
 
-// ── Start button ──
-function startChannel() {
-  select();
-  if (!activeChannel.action) return;
+function loadBuffer(name, url) {
+  if (!audioCtx) return;
+  fetch(url)
+    .then(function(r) { return r.arrayBuffer(); })
+    .then(function(ab) { return audioCtx.decodeAudioData(ab); })
+    .then(function(buf) { audioBuffers[name] = buf; })
+    .catch(function() {}); // silently ignore missing files (e.g. bottom-btn.mp3)
+}
 
-  if (activeChannel.action === "youtube") {
-    // Open the video modal and inject the embed URL
-    $("#videoFrame").attr("src", activeChannel.url + "&autoplay=1");
-    $("#videoModal").addClass("active");
-  } else if (activeChannel.action === "route") {
-    // Navigate to the page (e.g. /rivals/)
+function playSound(name) {
+  if (audioCtx && audioBuffers[name]) {
+    // Resume ctx if suspended (autoplay policy)
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    var src = audioCtx.createBufferSource();
+    src.buffer = audioBuffers[name];
+    src.connect(audioCtx.destination);
+    src.start(0);
+  } else {
+    // Fallback: HTMLAudioElement clone (avoids "already playing" issue)
+    var el = document.getElementById(name);
+    if (el) {
+      var clone = el.cloneNode();
+      clone.volume = el.volume || 1;
+      clone.play().catch(function(){});
+    }
+  }
+}
+
+// Pre-load all buffers once AudioCtx is created
+function preloadSounds() {
+  initAudioCtx();
+  Object.keys(SOUNDS).forEach(function(k) { loadBuffer(k, SOUNDS[k]); });
+}
+
+// ── Named sound functions ──
+function hover()     { playSound('hover');     }
+function select()    { playSound('select');    }
+function back()      { playSound('back');      }
+function bottomBtn() { playSound('bottomBtn'); }
+
+function zip() {
+  playSound('zip');
+  playSound('select');
+  // Pause bg-music HTMLAudioElement
+  var music = document.getElementById('bg-music');
+  if (music) music.pause();
+}
+
+// ══════════════════════════════════════════════════════
+//  AUTOPLAY MUSIC
+//  Strategy: try immediately, retry on first user gesture.
+//  mirrors the bgmusic.html iframe trick from index-old.html
+//  but done directly so it works without Cloudflare.
+// ══════════════════════════════════════════════════════
+
+var musicStarted = false;
+
+function tryStartMusic() {
+  if (musicStarted) return;
+  var music = document.getElementById('bg-music');
+  var startup = document.getElementById('startup');
+  if (!music) return;
+
+  // Attempt play — browsers may reject before gesture
+  var p = music.play();
+  if (p !== undefined) {
+    p.then(function() {
+      musicStarted = true;
+      if (startup) startup.play().catch(function(){});
+    }).catch(function() {
+      // Will retry on first interaction
+    });
+  } else {
+    musicStarted = true;
+  }
+}
+
+function unlockAndPlay() {
+  if (musicStarted) return;
+  // Unlock Web Audio context too
+  initAudioCtx();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  preloadSounds();
+  tryStartMusic();
+}
+
+// ══════════════════════════════════════════════════════
+//  GIF HOVER SYSTEM
+//  Images use src = static first frame (jpg/png).
+//  data-gif points to the animated .gif.
+//  On hover-in: wait 500ms, swap to gif.
+//  On hover-out: wait 500ms, fade back to static.
+// ══════════════════════════════════════════════════════
+
+var gifTimers = {};
+
+function channelHoverIn(hoverEl) {
+  hover(); // play hover sound
+  var icon = hoverEl.closest('.channel-icon') || hoverEl.parentElement;
+  var img  = icon.querySelector('.channel-gif');
+  if (!img) return;
+  var gifSrc = img.getAttribute('data-gif');
+  if (!gifSrc || gifSrc === img.getAttribute('data-static')) return;
+
+  // Save static src on first call
+  if (!img.getAttribute('data-static')) {
+    img.setAttribute('data-static', img.src);
+  }
+
+  clearTimeout(gifTimers[img.id || gifSrc]);
+  gifTimers[img.id || gifSrc] = setTimeout(function() {
+    img.style.transition = 'none';
+    img.style.opacity = '1';
+    img.src = gifSrc + '?t=' + Date.now(); // force gif restart
+  }, 500);
+}
+
+function channelHoverOut(hoverEl) {
+  var icon = hoverEl.closest('.channel-icon') || hoverEl.parentElement;
+  var img  = icon.querySelector('.channel-gif');
+  if (!img) return;
+  var staticSrc = img.getAttribute('data-static');
+  if (!staticSrc) return;
+
+  clearTimeout(gifTimers[img.id || staticSrc]);
+  gifTimers[img.id || staticSrc] = setTimeout(function() {
+    img.style.transition = 'opacity 400ms ease';
+    img.style.opacity = '0';
+    setTimeout(function() {
+      img.src = staticSrc;
+      img.style.opacity = '1';
+    }, 400);
+  }, 500);
+}
+
+// ══════════════════════════════════════════════════════
+//  CHANNEL SELECTION + WARNING SEQUENCE
+// ══════════════════════════════════════════════════════
+
+var activeChannel = { action: null, url: null, title: null };
+
+function selectChannel(el) {
+  zip();
+
+  activeChannel.action = el.getAttribute('data-action');
+  activeChannel.url    = el.getAttribute('data-url');
+  activeChannel.title  = el.getAttribute('data-title') || '';
+
+  var img     = el.getAttribute('data-img');
+  var centerX = $(el).offset().left + $(el).width()  / 2;
+  var centerY = $(el).offset().top  + $(el).height() / 2;
+
+  $('.main-menu').css({ 'transform-origin': centerX + 'px ' + centerY + 'px 0px' });
+  $('.splash-screen').css({
+    'background-image': 'url(' + img + ')',
+    'transform-origin': centerX + 'px ' + centerY + 'px 0px'
+  });
+  $('.splash-title').text(activeChannel.title);
+
+  $('.main-menu').addClass('channel-splash');
+  $('body').addClass('channel-splash');
+  delay(function() { $('body').removeClass('splash-switch'); }, 900);
+}
+
+// ── Warning overlay sequence ──
+// Phase timeline:
+//   0ms   : overlay appears (black, opacity 1)
+//   300ms : image fades in
+//   2300ms: image fades out
+//   2800ms: overlay fades out → action fires
+function showWarningThenLaunch() {
+  var overlay = document.getElementById('warningOverlay');
+  var img     = document.getElementById('warningImg');
+  if (!overlay || !img) { launchChannel(); return; }
+
+  // Reset
+  overlay.style.transition = 'none';
+  overlay.style.opacity    = '1';
+  overlay.style.display    = 'flex';
+  img.style.transition     = 'none';
+  img.style.opacity        = '0';
+
+  // Force reflow so transitions fire
+  overlay.offsetHeight;
+
+  setTimeout(function() {
+    img.style.transition = 'opacity 400ms ease';
+    img.style.opacity    = '1';
+  }, 300);
+
+  setTimeout(function() {
+    img.style.transition = 'opacity 400ms ease';
+    img.style.opacity    = '0';
+  }, 2300);
+
+  setTimeout(function() {
+    overlay.style.transition = 'opacity 400ms ease';
+    overlay.style.opacity    = '0';
+  }, 2700);
+
+  setTimeout(function() {
+    overlay.style.display = 'none';
+    launchChannel();
+  }, 3100);
+}
+
+function launchChannel() {
+  if (!activeChannel.action) return;
+  if (activeChannel.action === 'youtube') {
+    $('#videoFrame').attr('src', activeChannel.url + (activeChannel.url.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1');
+    $('#videoModal').addClass('active');
+  } else if (activeChannel.action === 'route') {
     window.location.href = activeChannel.url;
   }
 }
 
-// ── Close video modal ──
-function closeVideoModal() {
-  back();
-  $("#videoModal").removeClass("active");
-  // Stop video by clearing src
-  setTimeout(function() {
-    $("#videoFrame").attr("src", "");
-  }, 300);
+function startChannel() {
+  select();
+  showWarningThenLaunch();
 }
 
-// ── Back to menu ──
+function closeVideoModal() {
+  back();
+  $('#videoModal').removeClass('active');
+  setTimeout(function() { $('#videoFrame').attr('src', ''); }, 300);
+  // Resume bg music
+  var music = document.getElementById('bg-music');
+  if (music) music.play().catch(function(){});
+}
+
 function backToMenu() {
   back();
-  $(".main-menu").removeClass("channel-splash");
-  $("body").removeClass("channel-splash");
-  $("body").addClass("splash-switch");
-  delay(function() {
-    $("body").removeClass("splash-switch");
-  }, 900);
+  $('.main-menu').removeClass('channel-splash');
+  $('body').removeClass('channel-splash');
+  $('body').addClass('splash-switch');
+  delay(function() { $('body').removeClass('splash-switch'); }, 900);
 }
 
 // ── Date ──
-const monthNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const d = new Date();
-weekday = monthNames[d.getDay()];
-day     = d.getDate();
-month   = d.getMonth() + 1;
-date    = weekday + " " + month + "/" + day;
+var monthNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+var _d    = new Date();
+weekday   = monthNames[_d.getDay()];
+day       = _d.getDate();
+month     = _d.getMonth() + 1;
+date      = weekday + ' ' + month + '/' + day;
 
-// ── Document ready ──
+// ══════════════════════════════════════════════════════
+//  DOCUMENT READY
+// ══════════════════════════════════════════════════════
+
 $(document).ready(function() {
 
-  // Close screen-message on click
-  $("body").on("click", ".screen-message", function() {
-    $(".screen-message").addClass("hidden");
+  // First user interaction → unlock audio + start music
+  $(document).one('click touchstart keydown', function() {
+    unlockAndPlay();
+    preloadSounds();
   });
 
-  // Close video modal on backdrop click
-  $("body").on("click", "#videoModal", function(e) {
-    if ($(e.target).is("#videoModal")) {
-      closeVideoModal();
-    }
-  });
+  // Also try immediately (works in some browsers / after prior gesture)
+  setTimeout(function() {
+    preloadSounds();
+    tryStartMusic();
+  }, 100);
 
-  // Close video modal with Escape key
-  $(document).on("keydown", function(e) {
-    if (e.key === "Escape") closeVideoModal();
+  // Escape / backdrop close for video modal
+  $('body').on('click', '#videoModal', function(e) {
+    if ($(e.target).is('#videoModal')) closeVideoModal();
+  });
+  $(document).on('keydown', function(e) {
+    if (e.key === 'Escape') closeVideoModal();
   });
 
 });
