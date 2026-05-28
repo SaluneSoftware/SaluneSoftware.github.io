@@ -201,45 +201,63 @@ function selectChannel(el) {
 }
 
 // ── Warning overlay sequence ──
-// Phase timeline:
-//   0ms   : overlay appears (black, opacity 1)
-//   300ms : image fades in
-//   2300ms: image fades out
-//   2800ms: overlay fades out → action fires
+//
+// Timeline (ms):
+//   0         : solid black overlay appears, image invisible
+//   500       : image fades IN  over 3000ms
+//   3500      : image fully visible, holds for 1500ms
+//   5000      : image fades OUT over 3000ms
+//   8500      : black hold, then launch
+//
+// Route channels: overlay stays solid black while next page loads —
+//   it is NEVER dismissed, so the page transition looks like a game boot.
+// YouTube channels: modal opens, then overlay fades away slowly
+//   (2s ease) like lights coming back on after a film.
+
 function showWarningThenLaunch() {
   var overlay = document.getElementById('warningOverlay');
   var img     = document.getElementById('warningImg');
   if (!overlay || !img) { launchChannel(); return; }
 
-  // Reset
+  var FADE = 3000;
+
+  // Reset: solid black, image invisible
   overlay.style.transition = 'none';
   overlay.style.opacity    = '1';
   overlay.style.display    = 'flex';
   img.style.transition     = 'none';
   img.style.opacity        = '0';
+  overlay.offsetHeight; // force reflow
 
-  // Force reflow so transitions fire
-  overlay.offsetHeight;
-
+  // Fade image in
   setTimeout(function() {
-    img.style.transition = 'opacity 400ms ease';
+    img.style.transition = 'opacity ' + FADE + 'ms ease';
     img.style.opacity    = '1';
-  }, 300);
+  }, 500);
 
+  // Fade image out (after lead-in + fade-in + hold)
+  var fadeOutAt = 500 + FADE + 1500;
   setTimeout(function() {
-    img.style.transition = 'opacity 400ms ease';
+    img.style.transition = 'opacity ' + FADE + 'ms ease';
     img.style.opacity    = '0';
-  }, 2300);
+  }, fadeOutAt);
 
+  // Launch after image gone + short black hold
+  var launchAt = fadeOutAt + FADE + 500;
   setTimeout(function() {
-    overlay.style.transition = 'opacity 400ms ease';
-    overlay.style.opacity    = '0';
-  }, 2700);
-
-  setTimeout(function() {
-    overlay.style.display = 'none';
-    launchChannel();
-  }, 3100);
+    if (activeChannel.action === 'route') {
+      // Stay black through page load — never hide overlay
+      window.location.href = activeChannel.url;
+    } else {
+      // Open video modal, then slowly bring up the lights
+      launchChannel();
+      setTimeout(function() {
+        overlay.style.transition = 'opacity 2000ms ease';
+        overlay.style.opacity    = '0';
+        setTimeout(function() { overlay.style.display = 'none'; }, 2100);
+      }, 300);
+    }
+  }, launchAt);
 }
 
 function launchChannel() {
@@ -259,11 +277,20 @@ function startChannel() {
 
 function closeVideoModal() {
   back();
-  $('#videoModal').removeClass('active');
-  setTimeout(function() { $('#videoFrame').attr('src', ''); }, 300);
-  // Resume bg music
-  var music = document.getElementById('bg-music');
-  if (music) music.play().catch(function(){});
+  // Fade backdrop out slowly — lights coming back on after a film
+  var modal = document.getElementById('videoModal');
+  if (modal) {
+    modal.style.transition = 'opacity 1800ms ease';
+    modal.style.opacity    = '0';
+    setTimeout(function() {
+      $('#videoModal').removeClass('active');
+      modal.style.transition = '';
+      modal.style.opacity    = '';
+      $('#videoFrame').attr('src', '');
+      var music = document.getElementById('bg-music');
+      if (music) music.play().catch(function(){});
+    }, 1900);
+  }
 }
 
 function backToMenu() {

@@ -106,7 +106,8 @@ body.channel-splash {
   background-size: 100% 100%;
 }
 
-/* GIF thumbnail — always fills the channel icon shape */
+/* GIF thumbnail — sits in normal flow (no z-index) so the :after
+   channel-border pseudo-element always layers on top as a frame */
 .channel-gif {
   display: block;
   width: 100%;
@@ -115,8 +116,8 @@ body.channel-splash {
   -webkit-clip-path: polygon(2% 7%, 6% 2%, 52% 1%, 95% 3%, 98% 8%, 100% 49%, 98% 92%, 95% 97%, 50% 99%, 5% 97%, 2% 93%, 0 50%);
   clip-path: polygon(2% 7%, 6% 2%, 52% 1%, 95% 3%, 98% 8%, 100% 49%, 98% 92%, 95% 97%, 50% 99%, 5% 97%, 2% 93%, 0 50%);
   transition: opacity 400ms ease;
-  position: relative;
-  z-index: 1;
+  position: static;
+  z-index: auto;
 }
 
 .channel-icon.occupied .hover {
@@ -455,9 +456,11 @@ body.channel-splash {
   position: fixed;
   inset: 0;
   z-index: 999999;
-  background: rgba(0,0,0,0.88);
+  background: black;
   align-items: center;
   justify-content: center;
+  opacity: 1;
+  /* transition used by closeVideoModal JS for lights-on effect */
 }
 
 .video-modal.active {

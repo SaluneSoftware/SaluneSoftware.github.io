@@ -44,6 +44,14 @@ function loadViewContents(v, t) {
           }, 300);
         }
 
+        if (v === "about-me") {
+          setTimeout(function(){
+            $( ".about-navcontainer" ).addClass( "animate" );
+            $( ".settings-header" ).addClass( "animate" );
+            $( ".settings-footer" ).addClass( "animate" );
+          }, 300);
+        }
+
         currentView = v;
 
         // transition out
